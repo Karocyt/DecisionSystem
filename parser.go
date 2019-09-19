@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func parser(env env) {
+func parser() {
 	file, err := os.Open(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
@@ -17,7 +17,7 @@ func parser(env env) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.Trim(scanner.Text(), " ")
-		statement := strings.Trim(strings.Split(line, com)[0], " /t/n")
+		statement := strings.Trim(strings.Split(line, com)[0], " \t\n")
 		if statement == "" {
 			continue
 		}

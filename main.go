@@ -1,27 +1,15 @@
 package main
 
-const (
-	openPar     string = "("
-	closePar    string = ")"
-	not         string = "!"
-	and         string = "+"
-	or          string = "|"
-	xor         string = "^"
-	imp         string = "=>"
-	ioi         string = "<=>"
-	com         string = "#"
-	factSymbol  string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	factDeclar  string = "="
-	queryDeclar string = "?"
+import (
+	"fmt"
+	"os"
 )
 
-type env struct {
-	kb        []string
-	trueFacts []string
-	queries   []string
-}
-
 func main() {
-	var env env
-	parser(env)
+
+	if len(os.Args) != 2 {
+		fmt.Printf("Need only one argument as file name.\n")
+		os.Exit(1)
+	}
+	parser()
 }
