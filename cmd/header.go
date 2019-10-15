@@ -30,16 +30,19 @@ const (
 type precedence int
 
 const (
-	openBraOp  precedence = 1
-	closeBraOp precedence = 1
-	orOp       precedence = 2
-	xorOp      precedence = 3
-	andOp      precedence = 4
-	notOp      precedence = 5
+	openBraPre  precedence = 1
+	closeBraPre precedence = 1
+	impPre      precedence = 1
+	ioiPre      precedence = 1
+	orPre       precedence = 2
+	xorPre      precedence = 3
+	andPre      precedence = 4
+	notPre      precedence = 5
+	factPre     precedence = 6
 )
 
 type infTree struct {
-	head       string
+	head       *infTree
 	left       *infTree
 	right      *infTree
 	operator   string
