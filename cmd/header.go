@@ -54,5 +54,5 @@ var env struct {
 	initialFacts []string
 	queries      []string
 	allFacts     []string
-	tree         infTree
+	trees        []infTree
 }

@@ -42,7 +42,6 @@ func printNode(node *infTree, indent int) {
  * https://www.rhyscitlema.com/algorithms/expression-parsing-algorithm/
  */
 func buildTree() {
-	var tree *infTree
 	var root *infTree
 
 	for _, rule := range env.rules {
@@ -58,24 +57,18 @@ func buildTree() {
 					i += 2
 				} else if i+2 < len(rule) && rule[i:i+2] == imp {
 					current = build(root, current, imp)
-					i += 1
+					i++
 				} else {
 					current = build(root, current, string(rule[i]))
 				}
-				fmt.Printf("\nCURRENT : \n----------------------------\n")
-				printNode(current, 4)
 			}
 		}
 		if root.right != nil {
 			root.right.head = nil
 		}
 		root = root.right
-		tree = insertNodeItem(tree, *root, skipClimbUp)
-		fmt.Printf("\nROOT : \n----------------------------\n")
-		printNode(root, 4)
+		env.trees = append(env.trees, *root)
 	}
-	fmt.Printf("\tTREE : \n----------------------------\n")
-	printNode(tree, 4)
 }
 
 func build(root *infTree, current *infTree, c string) *infTree {
@@ -101,6 +94,7 @@ func build(root *infTree, current *infTree, c string) *infTree {
 	} else if c == not {
 		node.precedence = notPre
 		node.operator = not
+		info = rightAssociative
 	} else if c == and {
 		node.precedence = andPre
 		node.operator = and

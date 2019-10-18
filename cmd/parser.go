@@ -40,6 +40,10 @@ func parser(fileName string) {
 	}
 	initAllFacts()
 	buildTree()
+	for _, tree := range env.trees {
+		fmt.Printf("\nROOT : \n----------------------------\n")
+		printNode(&tree, 4)
+	}
 }
 
 /*
