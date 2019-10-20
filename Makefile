@@ -5,7 +5,8 @@ SRC_FILES = engine.go \
 			lexer.go \
 			main.go \
 			parser.go \
-			infTree.go
+			infTree.go \
+			utils.go
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
 

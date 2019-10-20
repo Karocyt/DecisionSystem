@@ -16,3 +16,4 @@ this compiles the executable in GOPATH/bin
 ## Author
 
 * **Fabien Blin** @ Le-101
+* **Kevin Azoulay** @ Le-101

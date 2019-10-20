@@ -19,8 +19,7 @@ func parser(fileName string) {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := strings.Trim(scanner.Text(), " ")
-		statement := strings.Trim(strings.Split(line, com)[0], " \t\n")
+		statement := strings.Trim(strings.Split(scanner.Text(), com)[0], " \t\n")
 		if statement == "" {
 			continue
 		}
