@@ -1,13 +1,41 @@
-SRC_DIR = cmd/
+#******************************************************************************#
+#*                                                                            *#
+#*          ▄▄▄██▀▀▀      ███▄ ▄███▓         ██▓    ▄▄▄       ▄▄▄▄            *#
+#*            ▒██        ▓██▒▀█▀ ██▒        ▓██▒   ▒████▄    ▓█████▄          *#
+#*            ░██        ▓██    ▓██░        ▒██░   ▒██  ▀█▄  ▒██▒ ▄██         *#
+#*         ▓██▄██▓       ▒██    ▒██         ▒██░   ░██▄▄▄▄██ ▒██░█▀           *#
+#*          ▓███▒    ██▓ ▒██▒   ░██▒ ██▓    ░██████▒▓█   ▓██▒░▓█  ▀█▓         *#
+#*          ▒▓▒▒░    ▒▓▒ ░ ▒░   ░  ░ ▒▓▒    ░ ▒░▓  ░▒▒   ▓▒█░░▒▓███▀▒         *#
+#*          ▒ ░▒░    ░▒  ░  ░      ░ ░▒     ░ ░ ▒  ░ ▒   ▒▒ ░▒░▒   ░          *#
+#*          ░ ░ ░    ░   ░      ░    ░        ░ ░    ░   ▒    ░    ░          *#
+#*          ░   ░     ░         ░     ░         ░  ░     ░  ░ ░               *#
+#*                    ░               ░                            ░          *#
+#*                                                                            *#
+#******************************************************************************#
+                                   #* Makefile *#
 
-SRC_FILES = engine.go \
-			header.go \
-			lexer.go \
-			main.go \
-			parser.go \
-			infTree.go
+.PHONY: build get install run watch start stop restart fclean
 
-SRC = $(addprefix $(SRC_DIR), $(SRC_FILES))
+GOPATH = $(shell pwd)
+GOBIN = $(GOPATH)/bin
+GOFILES = $(wildcard src/*.go)
+GONAME = expert_system
+TEST_FILE = example_input.txt
 
-all : $(SRC)
-	go build -o expert_system $(SRC)
+all:
+	@echo "Building $(GOFILES) to ./bin"
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go build -o bin/$(GONAME) $(GOFILES)
+
+get:
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go get .
+
+install:
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go install $(GOFILES)
+
+run: all
+	@./bin/$(GONAME) ./examples/$(TEST_FILE)
+
+fclean:
+	@echo "Cleaning"
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
+	@rm -rf ./bin/
