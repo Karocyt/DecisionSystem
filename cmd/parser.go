@@ -11,7 +11,7 @@ import (
 /*
  * Parse file and initialize the env global variable
  */
-func parser(fileName string) {
+func parseFile(fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
@@ -20,26 +20,27 @@ func parser(fileName string) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.Trim(scanner.Text(), " ")
-		statement := strings.Trim(strings.Split(line, com)[0], " \t\n")
-		if statement == "" {
+		line = strings.Trim(strings.Split(line, com)[0], " \t\n")
+		if line == "" {
 			continue
 		}
-		if strings.HasPrefix(statement, factDeclar) {
-			env.initialFacts = strings.Split(strings.TrimPrefix(statement, factDeclar), "")
-		} else if strings.HasPrefix(statement, queryDeclar) {
-			env.queries = strings.Split(strings.TrimPrefix(statement, queryDeclar), "")
+		if strings.HasPrefix(line, factDeclar) {
+			env.initialFacts = strings.Split(strings.TrimPrefix(line, factDeclar), "")
+		} else if strings.HasPrefix(line, queryDeclar) {
+			env.queries = strings.Split(strings.TrimPrefix(line, queryDeclar), "")
 		} else {
-			env.rules = append(env.rules, statement)
+			env.rules = append(env.rules, line)
 		}
 	}
-	fmt.Printf("rules : %q\n", env.rules)
-	fmt.Printf("initialFacts : %q\n", env.initialFacts)
-	fmt.Printf("queries : %q\n", env.queries)
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 	initAllFacts()
 	buildTree()
+	fmt.Printf("rules : %q\n", env.rules)
+	fmt.Printf("initialFacts : %q\n", env.initialFacts)
+	fmt.Printf("queries : %q\n", env.queries)
+	fmt.Printf("allFacts : %q\n", env.allFacts)
 	for _, tree := range env.trees {
 		fmt.Printf("\nROOT : \n----------------------------\n")
 		printNode(&tree, 4)
@@ -68,5 +69,43 @@ func initAllFacts() {
 				env.allFacts = append(env.allFacts, string(stmt))
 			}
 		}
+	}
+}
+
+/*
+ * Parse line dynamically
+ */
+func parseDynamic() {
+	var line string
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Printf("Using dynamic mode. \nPlease write the rules followed by initial facts then your query.\nType 'exit' to stop.\nType 'run' to run inference engine.\n")
+	for scanner.Scan() {
+		line = scanner.Text()
+		if line == "exit" {
+			os.Exit(0)
+		} else if line == "run" {
+			break
+		}
+		line = strings.Trim(strings.Split(strings.Trim(line, " "), com)[0], " \t\n")
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, factDeclar) {
+			env.initialFacts = strings.Split(strings.TrimPrefix(line, factDeclar), "")
+		} else if strings.HasPrefix(line, queryDeclar) {
+			env.queries = strings.Split(strings.TrimPrefix(line, queryDeclar), "")
+		} else {
+			env.rules = append(env.rules, line)
+		}
+	}
+	initAllFacts()
+	buildTree()
+	fmt.Printf("rules : %q\n", env.rules)
+	fmt.Printf("initialFacts : %q\n", env.initialFacts)
+	fmt.Printf("queries : %q\n", env.queries)
+	fmt.Printf("allFacts : %q\n", env.allFacts)
+	for _, tree := range env.trees {
+		fmt.Printf("\nROOT : \n----------------------------\n")
+		printNode(&tree, 4)
 	}
 }

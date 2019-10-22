@@ -6,9 +6,15 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2 {
-		fmt.Printf("Need only one argument as file name.\n")
+
+	if len(os.Args) == 1 { // dynamic ruleset
+		parseDynamic()
+	} else if len(os.Args) == 2 { // file ruleset
+		parseFile(os.Args[1])
+	} else { // error
+		fmt.Println("Error. Retry later ...")
 		os.Exit(1)
 	}
-	parser(os.Args[1])
+
+	engine()
 }

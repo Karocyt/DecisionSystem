@@ -47,6 +47,7 @@ type infTree struct {
 	right      *infTree
 	operator   string
 	precedence precedence
+	isTrue     int
 }
 
 var env struct {
