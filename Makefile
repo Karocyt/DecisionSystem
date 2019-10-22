@@ -18,13 +18,13 @@
 
 GOPATH = $(shell pwd)
 GOBIN = $(GOPATH)/bin
-GOFILES = $(wildcard src/*.go)
+GOFILES = $(wildcard cmd/*.go)
 GONAME = expert_system
 TEST_FILE = example_input.txt
 
 all:
 	@echo "Building $(GOFILES) to ./bin"
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go build -o bin/$(GONAME) $(GOFILES)
+	GOPATH=$(GOPATH) GOBIN=$(GOBIN) go build -o bin/$(GONAME) $(GOFILES)
 
 get:
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go get .

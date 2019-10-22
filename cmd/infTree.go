@@ -16,6 +16,7 @@ func newInfTree() *infTree {
 	t.operator = ""
 	t.precedence = 10
 	t.right = nil
+	t.isTrue = falseF
 	return &t
 }
 
@@ -94,7 +95,6 @@ func build(root *infTree, current *infTree, c string) *infTree {
 	} else if c == not {
 		node.precedence = notPre
 		node.operator = not
-		info = rightAssociative
 	} else if c == and {
 		node.precedence = andPre
 		node.operator = and
@@ -107,6 +107,9 @@ func build(root *infTree, current *infTree, c string) *infTree {
 	} else if strings.Contains(factSymbol, c) {
 		node.precedence = factPre
 		node.operator = c
+		if stringInSlice(c, env.initialFacts) {
+			node.isTrue = trueF
+		}
 	} else {
 		fmt.Printf("bug parse : '%s'\n", c)
 		os.Exit(1)
