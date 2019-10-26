@@ -6,11 +6,11 @@ import (
 )
 
 type Lexer struct {
-	Name			string
-	Input			string
-	Tokens			chan lexertoken.Token
-	State			LexFn
-	BracketsCount	int
+	Name			     string
+	Input			     string
+	Tokens			   chan lexertoken.Token
+	State			     LexFn
+	BracketsCount	 int
 
 	Start			int
 	Pos				int
