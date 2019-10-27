@@ -1,3 +1,3 @@
-module https: //github.com/Karocyt/expertsystem
+module github.com/Karocyt/expertsystem
 
 go 1.13
