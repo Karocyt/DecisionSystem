@@ -1,7 +1,5 @@
 # executable
-expert_system
-# kevazoul test input
-**/test_input
+expertsystem
 # system files
 .DS_Store
 
