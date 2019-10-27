@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"unicode.utf8"
+	"unicode/utf8"
 	"unicode"
 )
 
