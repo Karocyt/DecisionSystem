@@ -25,17 +25,18 @@ func LexBegin(this *Lexer) LexFn {
 }
 
 func LexQuery(this *Lexer) LexFn {
-	this.Next()
+	this.Pos += len(QUERY)
 	this.Emit(TOKEN_QUERY)
 	return LexKeyQuery
 }
 
 func LexKeyQuery(this *Lexer) LexFn {
-	this.Next()
-	if strings.ContainsRune(KEYS, this.Input[this.Start]) {
+	this.Inc()
+	r = this.Next()
+	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
 		return LexKeyQuery
-	} else if this.Input[this.Start] == `/n` {
+	} else if this.Input[this.Start] == '//n' {
 		return LexError
 	}
 	return LexEnd // To check, bad shit could be afterwards
@@ -47,15 +48,15 @@ the lexer for a key.
 */
 func LexLeftBracket(this *Lexer) LexFn {
   this.Pos += len(LEFT_BRACKET)
-  this.BracketCount += 1
+  this.BracketsCount += 1
   this.Emit(TOKEN_LEFT_BRACKET)
   return LexKey
 }
 
 func LexRightBracket(this *Lexer) LexFn {
   this.Pos += len(RIGHT_BRACKET)
-  this.BracketCount -= 1
-  if this.BracketCount < 0 {
+  this.BracketsCount -= 1
+  if this.BracketsCount < 0 {
   	return LexError
   }
   this.Emit(TOKEN_RIGHT_BRACKET)
@@ -63,8 +64,8 @@ func LexRightBracket(this *Lexer) LexFn {
 }
 
 func LexKey(this *Lexer) LexFn {
-	if strings.ContainsRune(KEYS, this.Input[this.Pos]) {
-		this.Next()
+	if strings.ContainsRune(KEYS, this.Next()) {
+		this.Inc()
 		this.Emit(TOKEN_KEY)
 		return LexSymbol
 	} else if strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
@@ -79,9 +80,8 @@ func LexSymbol(this *Lexer) LexFn {
     	return LexImplies
     } else if strings.HasPrefix(this.InputToEnd(), IF_ONLY_IF) {
     	return LexIfOnlyIf
-    } else if strings.HasPrefix(this.InputToEnd(), IF_ONLY_IF) {
-    	return LexOperator
     }
+    return LexOperator
 }
 
 func LexImplies(this *Lexer) LexFn {
@@ -97,8 +97,7 @@ func LexIfOnlyIf(this *Lexer) LexFn {
 }
 
 func LexOperator(this *Lexer) LexFn {
-	this.Next()
-	if strings.HasPrefix(OPERATORS, this.Input[this.Start]) {
+	if strings.ContainsRune(OPERATORS, this.Next()) {
 		this.Emit(TOKEN_OPERATOR)
 		return LexKey
 	}
@@ -143,3 +142,15 @@ func LexFact(this *Lexer) LexFn {
 		return LexEnd
 	}
 }
+
+func LexError(this *Lexer) LexFn {
+	close(this.Tokens)
+	this.Error = "Test failed"
+	return nil
+}
+
+func LexEnd(this *Lexer) LexFn {
+	close(this.Tokens)
+	return nil
+}
+
