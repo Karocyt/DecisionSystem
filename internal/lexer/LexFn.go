@@ -32,11 +32,11 @@ func LexQuery(this *Lexer) LexFn {
 
 func LexKeyQuery(this *Lexer) LexFn {
 	this.Inc()
-	r = this.Next()
+	r := this.Next()
 	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
 		return LexKeyQuery
-	} else if this.Input[this.Start] == '//n' {
+	} else if r == "/n" {
 		return LexError
 	}
 	return LexEnd // To check, bad shit could be afterwards
@@ -86,13 +86,13 @@ func LexSymbol(this *Lexer) LexFn {
 
 func LexImplies(this *Lexer) LexFn {
 	this.Pos += len(IMPLIES)
-	this.Emit(thistoker.TOKEN_IMPLIES)
+	this.Emit(TOKEN_IMPLIES)
 	return LexResult
 }
 
 func LexIfOnlyIf(this *Lexer) LexFn {
 	this.Pos += len(IF_ONLY_IF)
-	this.Emit(thistoker.TOKEN_IF_ONLY_IF)
+	this.Emit(TOKEN_IF_ONLY_IF)
 	return LexResult
 }
 
@@ -105,22 +105,22 @@ func LexOperator(this *Lexer) LexFn {
 }
 
 func LexResult(this *Lexer) LexFn {
-	this.Next()
-	if strings.ContainsRune(KEYS, this.Input[this.Start]) {
+	r := this.Next()
+	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
 	}
-	if strings.ContainsRune(OPERATORS, this.Input[this.Pos]) {
-		this.Next()
+	if strings.ContainsRune(OPERATORS, r) {
+		this.Inc()
 		this.Emit(TOKEN_OPERATOR)
-		this.Next()
-		if strings.ContainsRune(KEYS, this.Input[this.Start]) {
+		r = this.Next()
+		if strings.ContainsRune(KEYS, r) {
 			this.Emit(TOKEN_KEY)
 		} else {
 			return LexError
 		}
 	}
-	this.Next()
-	if this.Input[this.Start] == `/n` {
+	r = this.Next()
+	if r == `/n` {
 		this.Emit(TOKEN_EOL)
 		return LexBegin
 	}
