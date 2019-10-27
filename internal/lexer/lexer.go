@@ -30,7 +30,7 @@ func (this *Lexer) Emit(tokenType TokenType) {
 Returns current rune at Pos
 */
 func (this *Lexer) Next() (r rune) {
-  r, _ = utf8.DecodeRuneInString(this.InputToEnd)
+  r, _ = utf8.DecodeRuneInString(this.InputToEnd())
   return
 }
 
@@ -39,8 +39,8 @@ Increment Pos of the size of the next rune
 Pushes EOF token to the channel if we reached end of input
 */
 func (this *Lexer) Inc() {
-  _, size := utf8.DecodeRuneInString(this.InputToEnd)
-  lexer.Pos += size
+  _, size := utf8.DecodeRuneInString(this.InputToEnd())
+  this.Pos += size
   if this.Start + this.Pos >= len(this.Input) {
     this.Emit(TOKEN_EOF)
   }
@@ -61,7 +61,7 @@ func (this *Lexer) SkipWhitespace() {
   for {
     r := this.Next()
 
-    if !unicode.IsSpace(ch) {
+    if !unicode.IsSpace(r) {
       break
     }
     this.Inc()
