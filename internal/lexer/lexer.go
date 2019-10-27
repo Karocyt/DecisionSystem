@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"unicode"
+	"unicode/utf8"
 )
 
 type Lexer struct {
@@ -29,7 +29,8 @@ func (this *Lexer) Emit(tokenType TokenType) {
 Returns current rune at Pos
 */
 func (this *Lexer) Next() (r rune) {
-  r, _ := utf8.DecodeRuneInString(lexer.Input[lexer.Start])
+  r, _ := utf8.DecodeRuneInString(this.Input + this.Start)
+  return
 }
 
 /*
@@ -37,7 +38,7 @@ Increment Pos of the size of the next rune
 Pushes EOF token to the channel if we reached end of input
 */
 func (this *Lexer) Inc() {
-  _, size := utf8.DecodeRuneInString(lexer.Input[lexer.Start])
+  _, size := utf8.DecodeRuneInString(this.Input + this.Start)
   lexer.Pos += size
   if this.Start + this.Pos >= len(this.Input) {
     this.Emit(TOKEN_EOF)
@@ -82,7 +83,7 @@ Hence 2 is the king choice and can be hardcoded.
 func BeginLexing(filename string, input string) *Lexer {
   l := &lexer.Lexer{
     Input:  input,
-    State:  lexer.LexBegin,
+    State:  LexBegin,
     Tokens: make(chan LexToken, 2),
   }
 
