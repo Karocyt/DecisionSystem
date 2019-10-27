@@ -1,6 +1,7 @@
 package lexer
 
 import (
+  "unicode"
 	"unicode/utf8"
 )
 
@@ -29,7 +30,7 @@ func (this *Lexer) Emit(tokenType TokenType) {
 Returns current rune at Pos
 */
 func (this *Lexer) Next() (r rune) {
-  r, _ := utf8.DecodeRuneInString(this.Input + this.Start)
+  r, _ = utf8.DecodeRuneInString(this.InputToEnd)
   return
 }
 
@@ -38,7 +39,7 @@ Increment Pos of the size of the next rune
 Pushes EOF token to the channel if we reached end of input
 */
 func (this *Lexer) Inc() {
-  _, size := utf8.DecodeRuneInString(this.Input + this.Start)
+  _, size := utf8.DecodeRuneInString(this.InputToEnd)
   lexer.Pos += size
   if this.Start + this.Pos >= len(this.Input) {
     this.Emit(TOKEN_EOF)
@@ -58,17 +59,12 @@ Skips whitespace in infinite loop until we get something else or EOF.
 */
 func (this *Lexer) SkipWhitespace() {
   for {
-    ch := this.Next()
+    r := this.Next()
 
     if !unicode.IsSpace(ch) {
-      this.Dec()
       break
     }
-
-    if ch == EOF {
-      this.Emit(TOKEN_EOF)
-      break
-    }
+    this.Inc()
   }
 }
 
@@ -81,7 +77,7 @@ For memory footprint considerations, BUFF_SIZE should be kept as small as possib
 Hence 2 is the king choice and can be hardcoded.
 */
 func BeginLexing(filename string, input string) *Lexer {
-  l := &lexer.Lexer{
+  l := &Lexer{
     Input:  input,
     State:  LexBegin,
     Tokens: make(chan LexToken, 2),
