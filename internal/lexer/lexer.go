@@ -1,15 +1,13 @@
 package lexer
 
 import (
-  "lexertoken"
-  "LexFn"
 	"unicode"
 )
 
 type Lexer struct {
 	Name			     string
 	Input			     string
-	Tokens			   chan lexertoken.Token
+	Tokens			   chan LexToken
 	State			     LexFn
 	BracketsCount	 int
 
@@ -22,8 +20,8 @@ type Lexer struct {
 Pushes a token onto the channel, from previous pos (Start) to current pos (Pos)
 Takes a TokenType as parameter  
 */
-func (this *Lexer) Emit(tokenType lexertoken.TokenType) {
-  this.Tokens <- lexertoken.Token{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
+func (this *Lexer) Emit(tokenType TokenType) {
+  this.Tokens <- LexToken{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
   this.Start = this.Pos
 }
 
@@ -43,7 +41,7 @@ Pushes EOF token to the channel if we reached RuneCountInString
 func (this *Lexer) Inc() {
   this.Pos++
   if this.Pos >= utf8.RuneCountInString(this.Input) {
-    this.Emit(lexertoken.TOKEN_EOF)
+    this.Emit(TOKEN_EOF)
   }
 }
 
@@ -67,8 +65,8 @@ func (this *Lexer) SkipWhitespace() {
       break
     }
 
-    if ch == lexertoken.EOF {
-      this.Emit(lexertoken.TOKEN_EOF)
+    if ch == EOF {
+      this.Emit(TOKEN_EOF)
       break
     }
   }
@@ -87,7 +85,7 @@ func BeginLexing(filename string, input string) *lexer.Lexer {
     Name:   name,
     Input:  input,
     State:  lexer.LexBegin,
-    Tokens: make(chan lexertoken.Token, 2),
+    Tokens: make(chan LexToken, 2),
   }
 
   return l
