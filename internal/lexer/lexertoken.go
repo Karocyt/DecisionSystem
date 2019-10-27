@@ -1,4 +1,4 @@
-package lexertoken
+package lexer
 
 type TokenType int
 
@@ -26,7 +26,7 @@ const (
   	TOKEN_IF_ONLY_IF
 )
 
-type Token struct {
+type LexToken struct {
   	Type  TokenType
   	Value string
 }
