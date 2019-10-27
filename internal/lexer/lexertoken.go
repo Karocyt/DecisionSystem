@@ -24,6 +24,7 @@ const (
   	TOKEN_OPERATOR
   	TOKEN_IMPLIES
   	TOKEN_IF_ONLY_IF
+    TOKEN_QUERY
 )
 
 type LexToken struct {
