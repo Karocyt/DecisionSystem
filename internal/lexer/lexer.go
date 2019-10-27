@@ -1,6 +1,8 @@
 package lexer
 
 import (
+  "lexertoken"
+  "LexFn"
 	"unicode"
 )
 
