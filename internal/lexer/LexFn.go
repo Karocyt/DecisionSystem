@@ -35,7 +35,7 @@ func LexKeyQuery(lexer *Lexer) LexFn {
 	if strings.ContainsRune(lexertoken.KEYS, lexer.Input[lexer.Start]) {
 		lexer.Emit(lexertoken.TOKEN_KEY)
 		return LexKeyQuery
-	} else if lexer.Input[lexer.Start] == '/n' {
+	} else if lexer.Input[lexer.Start] == `/n` {
 		return LexError
 	}
 	return LexEnd // To check, bad shit could be afterwards
@@ -121,7 +121,7 @@ func LexResult(lexer *Lexer) LexFn {
 		}
 	}
 	lexer.Inc()
-	if lexer.Input[lexer.Start] == '/n'
+	if lexer.Input[lexer.Start] == `/n` {
 		lexer.Emit(lexertoken.TOKEN_EOL)
 		return LexBegin
 	}
