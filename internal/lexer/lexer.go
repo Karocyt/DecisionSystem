@@ -76,7 +76,7 @@ BUFF_SIZE should be > 1 to be buffered and initializable at init stage
 For memory footprint considerations, BUFF_SIZE should be kept as small as possible.
 Hence 2 is the king choice and can be hardcoded.
 */
-func BeginLexing(filename string, input string) *Lexer {
+func BeginLexing(input string) *Lexer {
   l := &Lexer{
     Input:  input,
     State:  LexBegin,
