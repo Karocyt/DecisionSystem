@@ -1,6 +1,6 @@
 # Expert System
 Lexer and forward/backward chaining inference engine
-Written as Go Module in Golang (go1.13)
+Written as Go Module in Golang (go1.12)
 
 # Compilation / Install
 
