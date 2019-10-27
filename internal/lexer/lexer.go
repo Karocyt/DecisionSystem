@@ -3,18 +3,32 @@ package lexer
 import (
   "unicode"
 	"unicode/utf8"
+  "fmt"
 )
 
 type Lexer struct {
-	Error			     string
+	Name			     string
+  Line           uint
 	Input			     string
 	Tokens			   chan LexToken
 	State			     LexFn
 	BracketsCount	 int
+  Error          *LexingError
 
 	Start			int
 	Pos				int
 	Width			int
+}
+
+type LexingError struct {
+  lexer    *Lexer
+  Expected string
+  Got      string
+}
+
+func (this *LexingError) Error() string {
+  return fmt.Sprintf("LexingError in %s:l%d:c%d Something when wrong while processing input data, got %s when expecting %s./n",
+                    this.lexer.Name, this.lexer.Line, this.lexer.Pos, this.Got, this.Expected)
 }
 
 /*
