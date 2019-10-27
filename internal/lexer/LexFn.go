@@ -36,7 +36,7 @@ func LexKeyQuery(this *Lexer) LexFn {
 	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
 		return LexKeyQuery
-	} else if r == "/n" {
+	} else if r == rune(10) {
 		return LexError
 	}
 	return LexEnd // To check, bad shit could be afterwards
@@ -120,7 +120,7 @@ func LexResult(this *Lexer) LexFn {
 		}
 	}
 	r = this.Next()
-	if r == `/n` {
+	if r == rune(10) {
 		this.Emit(TOKEN_EOL)
 		return LexBegin
 	}
@@ -134,7 +134,7 @@ func LexEquals(this *Lexer) LexFn {
 }
 
 func LexFact(this *Lexer) LexFn {
-	if strings.ContainsRune(KEYS, this.Input[this.Pos]) {
+	if strings.ContainsRune(KEYS, this.Next()) {
 		this.Pos += 1
 		this.Emit(TOKEN_KEY)
 		return LexFact
