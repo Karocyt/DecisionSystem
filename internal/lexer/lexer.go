@@ -99,3 +99,18 @@ func BeginLexing(input string) *Lexer {
 
   return l
 }
+
+/*
+Returns next item if there is one, otherwise move one step ahead
+*/
+func (this *Lexer) NextToken() LexToken {
+  for {
+    select {
+    case t := <-this.Tokens:
+      return t
+    default:
+      this.State = this.State(this)
+    }
+  }
+  panic("WTF?! Out of infinit loop.")
+}
