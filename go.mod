@@ -16,6 +16,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/cosiner/argv v0.0.1 // indirect
 	github.com/creack/pty v1.1.9 // indirect
+	github.com/fatih/color v1.7.0 // indirect
 	github.com/go-delve/delve v1.3.2 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/groupcache v0.0.0-20191027212112-611e8accdfc9 // indirect
