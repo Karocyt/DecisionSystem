@@ -4,6 +4,7 @@ import (
   "unicode"
 	"unicode/utf8"
   "fmt"
+  "github.com/fatih/color"
 )
 
 type Lexer struct {
@@ -28,9 +29,14 @@ type LexingError struct {
   Pos     int
 }
 
+var boldBlack *color.Color = color.New(color.Bold, color.FgBlack)
+var boldRed *color.Color = color.New(color.Bold, color.FgRed)
+
 func (this *LexingError) Error() string {
-  return fmt.Sprintf("LexingError in %s:l%d:c%d Something when wrong while processing input data, got %s when expecting %s.\n",
-                    this.Lexer.Name, this.Line, this.Pos, this.Got, this.Expected)
+  return fmt.Sprintf("%s %s Something when wrong while processing input data, got %s when expecting %s.\n",
+                    boldBlack.Sprint(fmt.Sprintf("%s:%d:%d:", this.Lexer.Name, this.Line, this.Pos)),
+                    boldRed.Sprint("LexingError:"), boldBlack.Sprint(this.Got),
+                    boldBlack.Sprint(this.Expected))
 }
 
 func (this *Lexer) PosInLine() int {
