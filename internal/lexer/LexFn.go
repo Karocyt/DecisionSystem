@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"strings"
+	"fmt"
 )
 
 type LexFn func(*Lexer) LexFn
@@ -37,6 +38,7 @@ func LexKeyQuery(this *Lexer) LexFn {
 		this.Emit(TOKEN_KEY)
 		return LexKeyQuery
 	} else if r == rune(10) {
+		this.Error = &LexingError{this, "newline", "capital letter or EOF"}
 		return LexError
 	}
 	return LexEnd // To check, bad shit could be afterwards
@@ -64,13 +66,15 @@ func LexRightBracket(this *Lexer) LexFn {
 }
 
 func LexKey(this *Lexer) LexFn {
-	if strings.ContainsRune(KEYS, this.Next()) {
+	r := this.Next()
+	if strings.ContainsRune(KEYS, r) {
 		this.Inc()
 		this.Emit(TOKEN_KEY)
 		return LexSymbol
 	} else if strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
     	return LexLeftBracket
     } else {
+    	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter or '('"}
     	return LexError
     }
 }
@@ -97,10 +101,12 @@ func LexIfOnlyIf(this *Lexer) LexFn {
 }
 
 func LexOperator(this *Lexer) LexFn {
-	if strings.ContainsRune(OPERATORS, this.Next()) {
+	r := this.Next()
+	if strings.ContainsRune(OPERATORS, r) {
 		this.Emit(TOKEN_OPERATOR)
 		return LexKey
 	}
+	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "operator"}
 	return LexError
 }
 
@@ -116,6 +122,7 @@ func LexResult(this *Lexer) LexFn {
 		if strings.ContainsRune(KEYS, r) {
 			this.Emit(TOKEN_KEY)
 		} else {
+			this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter"}
 			return LexError
 		}
 	}
@@ -124,6 +131,7 @@ func LexResult(this *Lexer) LexFn {
 		this.Emit(TOKEN_EOL)
 		return LexBegin
 	}
+	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "newline or EOF"}
 	return LexError
 }
 
@@ -145,7 +153,6 @@ func LexFact(this *Lexer) LexFn {
 
 func LexError(this *Lexer) LexFn {
 	close(this.Tokens)
-	this.Error = "Test failed"
 	return nil
 }
 

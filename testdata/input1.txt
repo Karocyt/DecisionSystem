@@ -1,0 +1,5 @@
+A+B+!(C|D)<=>!Z
+!G+H=>Z
+A^!G=>Z
+=ABG
+?GVX
