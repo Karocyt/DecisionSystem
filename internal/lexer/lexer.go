@@ -21,7 +21,7 @@ type Lexer struct {
 }
 
 type LexingError struct {
-  lexer    *Lexer
+  Lexer    *Lexer
   Expected string
   Got      string
   Line     int
@@ -29,8 +29,8 @@ type LexingError struct {
 }
 
 func (this *LexingError) Error() string {
-  return fmt.Sprintf("LexingError in %s:l%d:c%d Something when wrong while processing input data, got %s when expecting %s./n",
-                    this.lexer.Name, this.Line, this.Pos, this.Got, this.Expected)
+  return fmt.Sprintf("LexingError in %s:l%d:c%d Something when wrong while processing input data, got %s when expecting %s.\n",
+                    this.Lexer.Name, this.Line, this.Pos, this.Got, this.Expected)
 }
 
 func (this *Lexer) PosInLine() int {
@@ -96,27 +96,23 @@ BUFF_SIZE should be > 1 to be buffered and initializable at init stage
 For memory footprint considerations, BUFF_SIZE should be kept as small as possible.
 Hence 2 is the king choice and can be hardcoded.
 */
-func BeginLexing(input string) *Lexer {
+func BeginLexing(input string, name string) *Lexer {
   l := &Lexer{
+    Name:   name,
     Input:  input,
     State:  LexBegin,
     Tokens: make(chan LexToken, 2),
   }
-  //go l.
+  go l.run()
   return l
 }
 
 /*
 Returns next item if there is one, otherwise move one step ahead
 */
-func (this *Lexer) NextToken() LexToken {
-  for {
-    select {
-    case t := <-this.Tokens:
-      return t
-    default:
-      this.State = this.State(this)
-    }
+func (this *Lexer) run() LexToken {
+  for ; this.State != nil; {
+    this.State = this.State(this)
   }
   panic("WTF?! Out of infinit loop.")
 }
