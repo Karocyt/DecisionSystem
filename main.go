@@ -4,7 +4,7 @@ import (
 	"os"
     "io/ioutil"
 	"fmt"
-	"internal/lexer"
+	"github.com/Karocyt/expertsystem/internal/lexer"
 	"errors"
 )
 
