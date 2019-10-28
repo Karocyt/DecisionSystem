@@ -25,13 +25,17 @@ func getInput() (string, error) {
 
 func main() {
 	input, e := getInput()
-	if e != nil {
-		fmt.Println(e)
-	} else {
-		l := lexer.BeginLexing(input)
-		for t := l.NextToken(); t!= nil; t = l.NextToken() {
-			fmt.Printf("%s", t.Value)
+	if e == nil {
+		l := lexer.BeginLexing(input, os.Args[1])
+
+  		l.Emit(2)
+  		l.Emit(2)
+		for t := <-l.Tokens; l.Error == nil; t = <-l.Tokens {
+			fmt.Printf("Token: %s\n", t.Value)
+			l.Error = &lexer.LexingError{Lexer: l,Expected: "not that much",Got: "a lot",Line: l.Line,Pos: l.PosInLine()}
 		}
-		fmt.Printf("Hi me!\nFull file was:\n%s\n{EOF}\n", l.Input)
+		if l.Error != nil {
+			fmt.Println(l.Error)
+		}
 	}
 }
