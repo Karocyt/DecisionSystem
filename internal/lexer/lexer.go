@@ -8,7 +8,8 @@ import (
 
 type Lexer struct {
 	Name			     string
-  Line           uint
+  Line           int
+  PosToLine      int
 	Input			     string
 	Tokens			   chan LexToken
 	State			     LexFn
@@ -17,18 +18,23 @@ type Lexer struct {
 
 	Start			int
 	Pos				int
-	Width			int
 }
 
 type LexingError struct {
   lexer    *Lexer
   Expected string
   Got      string
+  Line     int
+  Pos     int
 }
 
 func (this *LexingError) Error() string {
   return fmt.Sprintf("LexingError in %s:l%d:c%d Something when wrong while processing input data, got %s when expecting %s./n",
-                    this.lexer.Name, this.lexer.Line, this.lexer.Pos, this.Got, this.Expected)
+                    this.lexer.Name, this.Line, this.Pos, this.Got, this.Expected)
+}
+
+func (this *Lexer) PosInLine() int {
+  return this.Start - this.PosToLine
 }
 
 /*
