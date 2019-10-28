@@ -102,7 +102,7 @@ func BeginLexing(input string) *Lexer {
     State:  LexBegin,
     Tokens: make(chan LexToken, 2),
   }
-
+  //go l.
   return l
 }
 
