@@ -27,12 +27,8 @@ func main() {
 	input, e := getInput()
 	if e == nil {
 		l := lexer.BeginLexing(input, os.Args[1])
-
-  		l.Emit(2)
-  		l.Emit(2)
 		for t := <-l.Tokens; l.Error == nil; t = <-l.Tokens {
 			fmt.Printf("Token: %s\n", t.Value)
-			l.Error = &lexer.LexingError{Lexer: l,Expected: "not that much",Got: "a lot",Line: l.Line,Pos: l.PosInLine()}
 		}
 		if l.Error != nil {
 			fmt.Println(l.Error)
