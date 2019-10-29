@@ -116,9 +116,9 @@ func BeginLexing(input string, name string) *Lexer {
 /*
 Returns next item if there is one, otherwise move one step ahead
 */
-func (this *Lexer) run() LexToken {
+func (this *Lexer) run() {
   for ; this.State != nil; {
     this.State = this.State(this)
   }
-  panic("WTF?! Out of infinit loop.")
+  //panic("WTF?! Out of infinit loop.")
 }
