@@ -50,6 +50,7 @@ the lexer for a key.
 */
 func LexLeftBracket(this *Lexer) LexFn {
   this.Pos += len(LEFT_BRACKET)
+  fmt.Printf("%s\n", LEFT_BRACKET)
   this.BracketsCount += 1
   this.Emit(TOKEN_LEFT_BRACKET)
   return LexKey
@@ -84,6 +85,8 @@ func LexSymbol(this *Lexer) LexFn {
     	return LexImplies
     } else if strings.HasPrefix(this.InputToEnd(), IF_ONLY_IF) {
     	return LexIfOnlyIf
+    } else if strings.HasPrefix(this.InputToEnd(), RIGHT_BRACKET) {
+    	return LexRightBracket
     }
     return LexOperator
 }
@@ -103,6 +106,7 @@ func LexIfOnlyIf(this *Lexer) LexFn {
 func LexOperator(this *Lexer) LexFn {
 	r := this.Next()
 	if strings.ContainsRune(OPERATORS, r) {
+		this.Inc()
 		this.Emit(TOKEN_OPERATOR)
 		return LexKey
 	}
