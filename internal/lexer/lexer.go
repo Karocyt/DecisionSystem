@@ -23,8 +23,8 @@ type Lexer struct {
 
 type LexingError struct {
   Lexer    *Lexer
-  Expected string
   Got      string
+  Expected string
   Line     int
   Pos     int
 }
@@ -60,6 +60,12 @@ func (this *Lexer) Next() (r rune) {
   return
 }
 
+func (this *Lexer) Jump(r rune) {
+  this.Pos += len(fmt.Sprintf("%c", r))
+  this.Start = this.Pos
+  return
+}
+
 /*
 Increment Pos of the size of the next rune
 Pushes EOF token to the channel if we reached end of input
@@ -90,7 +96,7 @@ func (this *Lexer) SkipWhitespace() {
     if !unicode.IsSpace(r) {
       break
     }
-    this.Inc()
+    this.Jump(r)
   }
 }
 
