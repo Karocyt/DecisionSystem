@@ -7,11 +7,15 @@ import (
 
 type LexFn func(*Lexer) LexFn
 
+const RuneError = '\uFFFD'     // the "error" Rune or "Unicode replacement character"
+const Debug = false
+
 /*
 This lexer function starts everything off. It determines if we are
 beginning with a bracket, a key or facts.
 */
 func LexBegin(this *Lexer) LexFn {
+  if Debug {println("Start LexBegin")}
   this.SkipWhitespace()
 
   if strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
@@ -26,13 +30,14 @@ func LexBegin(this *Lexer) LexFn {
 }
 
 func LexQuery(this *Lexer) LexFn {
+	if Debug {println("Start LexQuery")}
 	this.Pos += len(QUERY)
 	this.Emit(TOKEN_QUERY)
 	return LexKeyQuery
 }
 
 func LexKeyQuery(this *Lexer) LexFn {
-	this.Inc()
+	if Debug {println("Start LexKeyQuery")}
 	r := this.Next()
 	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
@@ -49,14 +54,15 @@ This lexer function emits a TOKEN_LEFT_BRACKET then returns
 the lexer for a key.
 */
 func LexLeftBracket(this *Lexer) LexFn {
+	if Debug {println("Start LexLeftBracket")}
   this.Pos += len(LEFT_BRACKET)
-  fmt.Printf("%s\n", LEFT_BRACKET)
   this.BracketsCount += 1
   this.Emit(TOKEN_LEFT_BRACKET)
   return LexKey
 }
 
 func LexRightBracket(this *Lexer) LexFn {
+	if Debug {println("Start LexRightBracket")}
   this.Pos += len(RIGHT_BRACKET)
   this.BracketsCount -= 1
   if this.BracketsCount < 0 {
@@ -67,7 +73,8 @@ func LexRightBracket(this *Lexer) LexFn {
 }
 
 func LexKey(this *Lexer) LexFn {
-	r := this.Next()
+	if Debug {println("Start LexKey")}
+	r := this.Peek()
 	if strings.ContainsRune(KEYS, r) {
 		this.Inc()
 		this.Emit(TOKEN_KEY)
@@ -81,6 +88,7 @@ func LexKey(this *Lexer) LexFn {
 }
 
 func LexSymbol(this *Lexer) LexFn {
+	if Debug {println("Start LexSymbol")}
 	if strings.HasPrefix(this.InputToEnd(), IMPLIES) {
     	return LexImplies
     } else if strings.HasPrefix(this.InputToEnd(), IF_ONLY_IF) {
@@ -92,21 +100,23 @@ func LexSymbol(this *Lexer) LexFn {
 }
 
 func LexImplies(this *Lexer) LexFn {
+	if Debug {println("Start LexImplies")}
 	this.Pos += len(IMPLIES)
 	this.Emit(TOKEN_IMPLIES)
 	return LexResult
 }
 
 func LexIfOnlyIf(this *Lexer) LexFn {
+	if Debug {println("Start LexIfOnlyIf")}
 	this.Pos += len(IF_ONLY_IF)
 	this.Emit(TOKEN_IF_ONLY_IF)
 	return LexResult
 }
 
 func LexOperator(this *Lexer) LexFn {
+	if Debug {println("Start LexOperator")}
 	r := this.Next()
 	if strings.ContainsRune(OPERATORS, r) {
-		this.Inc()
 		this.Emit(TOKEN_OPERATOR)
 		return LexKey
 	}
@@ -115,39 +125,51 @@ func LexOperator(this *Lexer) LexFn {
 }
 
 func LexResult(this *Lexer) LexFn {
+	if Debug {println("Start LexResult")}
 	r := this.Next()
 	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
+	} else {
+		this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter", this.Line, this.PosInLine()}
+		return LexError
 	}
+	r = this.Next()
 	if strings.ContainsRune(OPERATORS, r) {
-		this.Inc()
+		if Debug {println("\tOperator found")}
 		this.Emit(TOKEN_OPERATOR)
 		r = this.Next()
 		if strings.ContainsRune(KEYS, r) {
+			if Debug {println("\tKey found")}
 			this.Emit(TOKEN_KEY)
 		} else {
 			this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter", this.Line, this.PosInLine()}
 			return LexError
 		}
+		r = this.Next()
 	}
-	r = this.Next()
 	if r == rune(10) {
+		if Debug {println("\tNewline")}
 		this.Emit(TOKEN_EOL)
 		return LexBegin
+	} else if r == RuneError {
+		if Debug {println("EOF")}
+		return LexEnd
 	}
 	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "newline or EOF", this.Line, this.PosInLine()}
 	return LexError
 }
 
 func LexEquals(this *Lexer) LexFn {
+	if Debug {println("Start LexEquals")}
   	this.Pos += len(EQUALS)
   	this.Emit(TOKEN_EQUALS)
   	return LexFact
 }
 
 func LexFact(this *Lexer) LexFn {
+	if Debug {println("Start LexFact")}
 	if strings.ContainsRune(KEYS, this.Next()) {
-		this.Pos += 1
+		this.Inc()
 		this.Emit(TOKEN_KEY)
 		return LexFact
 	} else {
@@ -156,11 +178,13 @@ func LexFact(this *Lexer) LexFn {
 }
 
 func LexError(this *Lexer) LexFn {
+	if Debug {println("Start LexError")}
 	close(this.Tokens)
 	return nil
 }
 
 func LexEnd(this *Lexer) LexFn {
+	if Debug {println("Start LexEnd")}
 	close(this.Tokens)
 	return nil
 }
