@@ -16,6 +16,7 @@ type Lexer struct {
 	State			     LexFn
 	BracketsCount	 int
   Error          *LexingError
+  LastRuneSize   int
 
 	Start			int
 	Pos				int
@@ -48,6 +49,7 @@ Pushes a token onto the channel, from previous pos (Start) to current pos (Pos)
 Takes a TokenType as parameter  
 */
 func (this *Lexer) Emit(tokenType TokenType) {
+  if Debug {println("\tEmit")}
   this.Tokens <- LexToken{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
   this.Start = this.Pos
 }
@@ -55,12 +57,25 @@ func (this *Lexer) Emit(tokenType TokenType) {
 /*
 Returns current rune at Pos
 */
-func (this *Lexer) Next() (r rune) {
+func (this *Lexer) Peek() (r rune) {
+  if Debug {println("\tPeek")}
   r, _ = utf8.DecodeRuneInString(this.InputToEnd())
   return
 }
 
+func (this *Lexer) Next() (rune) {
+  if Debug {println("\tNext")}
+  r, size := utf8.DecodeRuneInString(this.InputToEnd())
+  this.Pos += size
+  this.LastRuneSize = size
+  if this.Start + this.Pos >= len(this.Input) {
+    this.Emit(TOKEN_EOF)
+  }
+  return r
+}
+
 func (this *Lexer) Jump(r rune) {
+  if Debug {println("\tJump")}
   this.Pos += len(fmt.Sprintf("%c", r))
   this.Start = this.Pos
   return
@@ -71,11 +86,21 @@ Increment Pos of the size of the next rune
 Pushes EOF token to the channel if we reached end of input
 */
 func (this *Lexer) Inc() {
+  if Debug {println("\tInc")}
   _, size := utf8.DecodeRuneInString(this.InputToEnd())
   this.Pos += size
   if this.Start + this.Pos >= len(this.Input) {
     this.Emit(TOKEN_EOF)
   }
+}
+
+func (this *Lexer) Back() {
+  if Debug {println("\tBack")}
+  if this.LastRuneSize == 0 {
+    panic("lexer.LastRuneSize is 0, keep in mind that the lexer.Back() call works only for one rune.")
+  }
+  this.Pos -= this.LastRuneSize
+  this.LastRuneSize = 0
 }
 
 /*
@@ -91,7 +116,7 @@ Skips whitespace in infinite loop until we get something else or EOF.
 */
 func (this *Lexer) SkipWhitespace() {
   for {
-    r := this.Next()
+    r := this.Peek()
 
     if !unicode.IsSpace(r) {
       break
@@ -123,6 +148,7 @@ func BeginLexing(input string, name string) *Lexer {
 Returns next item if there is one, otherwise move one step ahead
 */
 func (this *Lexer) run() {
+  if Debug {println("Start go routine")}
   for ; this.State != nil; {
     this.State = this.State(this)
   }
