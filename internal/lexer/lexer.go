@@ -3,7 +3,6 @@ package lexer
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"unicode"
 	"unicode/utf8"
 )
 
@@ -14,6 +13,7 @@ type Lexer struct {
 	Input         string
 	Tokens        chan LexToken
 	State         LexFn
+	NextState     LexFn
 	BracketsCount int
 	Error         *LexingError
 	LastRuneSize  int
@@ -130,7 +130,7 @@ func (this *Lexer) SkipWhitespace() {
 	for {
 		r := this.Peek()
 
-		if !unicode.IsSpace(r) {
+		if r != '\t' || r != ' ' {
 			break
 		}
 		this.Jump(r)

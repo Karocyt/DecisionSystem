@@ -10,6 +10,12 @@ type LexFn func(*Lexer) LexFn
 const RuneError = '\uFFFD' // the "error" Rune or "Unicode replacement character"
 const Debug = false
 
+func LexFnSpacesJumpWrapper(this *Lexer, fn LexFn) LexFn {
+	this.SkipWhitespace()
+	return fn
+}
+
+
 /*
 This lexer function starts everything off. It determines if we are
 beginning with a bracket, a key or facts.
@@ -27,7 +33,7 @@ func LexBegin(this *Lexer) LexFn {
 	} else if strings.HasPrefix(this.InputToEnd(), QUERY) {
 		return LexQuery
 	} else {
-		return LexKey
+		return LexFnSpacesJumpWrapper(this, LexKey)
 	}
 }
 
@@ -38,7 +44,7 @@ func LexFalse(this *Lexer) LexFn {
 	if !strings.ContainsRune(KEYS, r) && !strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
 		this.Error = &LexingError{this, fmt.Sprintf("%c", r), "capital letter or '('", this.Line, this.PosInLine()}
 	}
-	return LexKey
+	return LexFnSpacesJumpWrapper(this, LexKey)
 }
 
 func LexQuery(this *Lexer) LexFn {
@@ -47,7 +53,7 @@ func LexQuery(this *Lexer) LexFn {
 	}
 	this.Pos += len(QUERY)
 	this.Emit(TOKEN_QUERY)
-	return LexKeyQuery
+	return LexFnSpacesJumpWrapper(this, LexKeyQuery)
 }
 
 func LexKeyQuery(this *Lexer) LexFn {
@@ -187,7 +193,7 @@ func LexResult(this *Lexer) LexFn {
 		}
 		r = this.Next()
 	}
-	if r == rune(10) {
+	if r == '\n' {
 		if Debug {
 			println("\tNewline")
 		}
