@@ -63,7 +63,7 @@ func LexKeyQuery(this *Lexer) LexFn {
 	r := this.Next()
 	if strings.ContainsRune(KEYS, r) {
 		this.Emit(TOKEN_KEY)
-		return LexKeyQuery
+		return LexFnSpacesJumpWrapper(this, LexKeyQuery)
 	} else if r == rune(10) {
 		this.Error = &LexingError{this, "newline", "capital letter or EOF", this.Line, this.PosInLine()}
 		return LexError
@@ -82,7 +82,7 @@ func LexLeftBracket(this *Lexer) LexFn {
 	this.Pos += len(LEFT_BRACKET)
 	this.BracketsCount += 1
 	this.Emit(TOKEN_LEFT_BRACKET)
-	return LexKey
+	return LexFnSpacesJumpWrapper(this, LexKey)
 }
 
 func LexRightBracket(this *Lexer) LexFn {
@@ -95,7 +95,7 @@ func LexRightBracket(this *Lexer) LexFn {
 		return LexError
 	}
 	this.Emit(TOKEN_RIGHT_BRACKET)
-	return LexSymbol
+	return LexFnSpacesJumpWrapper(this, LexSymbol)
 }
 
 func LexKey(this *Lexer) LexFn {
@@ -109,7 +109,7 @@ func LexKey(this *Lexer) LexFn {
 	} else if strings.ContainsRune(KEYS, r) {
 		this.Inc()
 		this.Emit(TOKEN_KEY)
-		return LexSymbol
+		return LexFnSpacesJumpWrapper(this, LexSymbol)
 	} else if strings.HasPrefix(str, LEFT_BRACKET) {
 		return LexLeftBracket
 	} else {
@@ -139,7 +139,7 @@ func LexImplies(this *Lexer) LexFn {
 	}
 	this.Pos += len(IMPLIES)
 	this.Emit(TOKEN_IMPLIES)
-	return LexResult
+	return LexFnSpacesJumpWrapper(this, LexResult)
 }
 
 func LexIfOnlyIf(this *Lexer) LexFn {
@@ -148,7 +148,7 @@ func LexIfOnlyIf(this *Lexer) LexFn {
 	}
 	this.Pos += len(IF_ONLY_IF)
 	this.Emit(TOKEN_IF_ONLY_IF)
-	return LexResult
+	return LexFnSpacesJumpWrapper(this, LexResult)
 }
 
 func LexOperator(this *Lexer) LexFn {
@@ -158,7 +158,7 @@ func LexOperator(this *Lexer) LexFn {
 	r := this.Next()
 	if strings.ContainsRune(OPERATORS, r) {
 		this.Emit(TOKEN_OPERATOR)
-		return LexKey
+		return LexFnSpacesJumpWrapper(this, LexKey)
 	}
 	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "operator", this.Line, this.PosInLine()}
 	return LexError
@@ -215,7 +215,7 @@ func LexEquals(this *Lexer) LexFn {
 	}
 	this.Pos += len(EQUALS)
 	this.Emit(TOKEN_EQUALS)
-	return LexFact
+	return LexFnSpacesJumpWrapper(this, LexFact)
 }
 
 func LexFact(this *Lexer) LexFn {
@@ -225,7 +225,7 @@ func LexFact(this *Lexer) LexFn {
 	if strings.ContainsRune(KEYS, this.Next()) {
 		this.Inc()
 		this.Emit(TOKEN_KEY)
-		return LexFact
+		return LexFnSpacesJumpWrapper(this, LexFact)
 	} else {
 		return LexEnd
 	}
