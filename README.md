@@ -6,7 +6,7 @@ It includes:
 ## Lexer
 Following [Rob Pike presentation on Lexical Scanning in Go](https://www.youtube.com/watch?v=HxaD_trXwRE)
 
-# Compilation / Install
+# Compilation
 
 	go build -o expert_system
 Compile expert_system app

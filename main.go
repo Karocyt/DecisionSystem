@@ -1,11 +1,11 @@
 package main
 
 import (
-	"os"
-    "io/ioutil"
+	"errors"
 	"fmt"
 	"github.com/Karocyt/expertsystem/internal/lexer"
-	"errors"
+	"io/ioutil"
+	"os"
 )
 
 func getInput() (string, error) {
