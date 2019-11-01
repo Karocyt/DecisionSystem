@@ -9,8 +9,9 @@ const (
 	IF_ONLY_IF    string = "<=>"
 	EQUALS        string = "="
 	QUERY         string = "?"
+	FALSE         string = "!"
 	KEYS          string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	OPERATORS     string = "+!|^"
+	OPERATORS     string = "+|^"
 
 	TOKEN_ERROR TokenType = iota
 	TOKEN_EOL
@@ -20,6 +21,7 @@ const (
 	TOKEN_RIGHT_BRACKET
 
 	TOKEN_KEY
+	TOKEN_FALSE
 	TOKEN_EQUALS
 	TOKEN_OPERATOR
 	TOKEN_IMPLIES

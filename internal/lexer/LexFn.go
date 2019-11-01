@@ -31,6 +31,16 @@ func LexBegin(this *Lexer) LexFn {
 	}
 }
 
+func LexFalse(this *Lexer) LexFn {
+	this.Pos += len(FALSE)
+	this.Emit(TOKEN_FALSE)
+	r := this.Peek()
+	if !strings.ContainsRune(KEYS, r) && !strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
+		this.Error = &LexingError{this, fmt.Sprintf("%c", r), "capital letter or '('", this.Line, this.PosInLine()}
+	}
+	return LexKey
+}
+
 func LexQuery(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexQuery")
@@ -87,11 +97,14 @@ func LexKey(this *Lexer) LexFn {
 		println("Start LexKey")
 	}
 	r := this.Peek()
-	if strings.ContainsRune(KEYS, r) {
+	str := this.InputToEnd()
+	if strings.HasPrefix(str, FALSE) {
+		return LexFalse
+	} else if strings.ContainsRune(KEYS, r) {
 		this.Inc()
 		this.Emit(TOKEN_KEY)
 		return LexSymbol
-	} else if strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
+	} else if strings.HasPrefix(str, LEFT_BRACKET) {
 		return LexLeftBracket
 	} else {
 		this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter or '('", this.Line, this.PosInLine()}
@@ -103,11 +116,12 @@ func LexSymbol(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexSymbol")
 	}
-	if strings.HasPrefix(this.InputToEnd(), IMPLIES) {
+	str := this.InputToEnd()
+	if strings.HasPrefix(str, IMPLIES) {
 		return LexImplies
-	} else if strings.HasPrefix(this.InputToEnd(), IF_ONLY_IF) {
+	} else if strings.HasPrefix(str, IF_ONLY_IF) {
 		return LexIfOnlyIf
-	} else if strings.HasPrefix(this.InputToEnd(), RIGHT_BRACKET) {
+	} else if strings.HasPrefix(str, RIGHT_BRACKET) {
 		return LexRightBracket
 	}
 	return LexOperator
