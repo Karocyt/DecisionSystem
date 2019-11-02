@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"unicode/utf8"
+	"unicode"
+	"strings"
 )
 
 type Lexer struct {
@@ -132,11 +134,23 @@ func (this *Lexer) SkipWhitespace() {
 	for {
 		r := this.Peek()
 
-		if r != '\t' || r != ' ' {
+		if r != '\t' && r != ' ' {
 			break
 		}
 		this.Jump(r)
 	}
+}
+
+func (this *Lexer) ParseKey() bool {
+	r := this.Peek()
+	if strings.ContainsRune(KEYS, r) {
+		this.Inc()
+		for unicode.IsLower(this.Peek()) {
+			this.Pos += utf8.RuneLen(r)
+		}
+		return true
+	}
+	return false
 }
 
 /*
