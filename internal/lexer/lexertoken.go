@@ -14,19 +14,19 @@ const (
 	OPERATORS     string = "+|^"
 
 	TOKEN_ERROR TokenType = iota
-	TOKEN_EOL // 10
-	TOKEN_EOF // 11
+	TOKEN_EOL             // 10
+	TOKEN_EOF             // 11
 
-	TOKEN_LEFT_BRACKET // 12
+	TOKEN_LEFT_BRACKET  // 12
 	TOKEN_RIGHT_BRACKET // 13
 
-	TOKEN_KEY // 14
-	TOKEN_FALSE // 15
-	TOKEN_EQUALS // 16
-	TOKEN_OPERATOR // 17
-	TOKEN_IMPLIES // 18
+	TOKEN_KEY        // 14
+	TOKEN_FALSE      // 15
+	TOKEN_EQUALS     // 16
+	TOKEN_OPERATOR   // 17
+	TOKEN_IMPLIES    // 18
 	TOKEN_IF_ONLY_IF // 19
-	TOKEN_QUERY // 20
+	TOKEN_QUERY      // 20
 )
 
 type LexToken struct {
