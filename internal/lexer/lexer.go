@@ -15,10 +15,8 @@ type Lexer struct {
 	Input         string
 	Tokens        chan LexToken
 	State         LexFn
-	NextState     LexFn
 	BracketsCount int
 	Error         *LexingError
-	LastRuneSize  int
 
 	Start int
 	Pos   int
@@ -77,10 +75,6 @@ func (this *Lexer) Next() rune {
 	}
 	r, size := utf8.DecodeRuneInString(this.InputToEnd())
 	this.Pos += size
-	this.LastRuneSize = size
-	// if this.Start+this.Pos >= len(this.Input) {
-	// 	this.Emit(TOKEN_EOF)
-	// }
 	return r
 }
 
@@ -103,20 +97,6 @@ func (this *Lexer) Inc() {
 	}
 	_, size := utf8.DecodeRuneInString(this.InputToEnd())
 	this.Pos += size
-	// if this.Start+this.Pos >= len(this.Input) {
-	// 	this.Emit(TOKEN_EOF)
-	// }
-}
-
-func (this *Lexer) Back() {
-	if Debug {
-		println("\tBack")
-	}
-	if this.LastRuneSize == 0 {
-		panic("lexer.LastRuneSize is 0, keep in mind that the lexer.Back() call works only for one rune.")
-	}
-	this.Pos -= this.LastRuneSize
-	this.LastRuneSize = 0
 }
 
 /*
@@ -153,6 +133,11 @@ func (this *Lexer) ParseKey() bool {
 	return false
 }
 
+func (this *Lexer) NewLine() {
+	this.Line++
+	this.PosToLine = this.Start
+}
+
 /*
 Start a new lexer with a given input string. This returns the
 instance of the lexer and a channel of tokens. Reading this stream
@@ -165,9 +150,10 @@ func BeginLexing(input string, name string) *Lexer {
 	l := &Lexer{
 		Name:   name,
 		Input:  input,
-		State:  LexBegin,
 		Tokens: make(chan LexToken, 2),
+		Line:   1,
 	}
+	l.State = LexFnSpacesJumpWrapper(l, LexBegin)
 	go l.run()
 	return l
 }
