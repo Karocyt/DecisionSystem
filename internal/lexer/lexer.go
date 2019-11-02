@@ -52,7 +52,9 @@ func (this *Lexer) Emit(tokenType TokenType) {
 	if Debug {
 		println("\tEmit")
 	}
-	this.Tokens <- LexToken{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
+	t := LexToken{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
+	fmt.Printf("\t\tToken %d: %s\n", t.Type, t.Value)
+	this.Tokens <- t
 	this.Start = this.Pos
 }
 
@@ -74,9 +76,9 @@ func (this *Lexer) Next() rune {
 	r, size := utf8.DecodeRuneInString(this.InputToEnd())
 	this.Pos += size
 	this.LastRuneSize = size
-	if this.Start+this.Pos >= len(this.Input) {
-		this.Emit(TOKEN_EOF)
-	}
+	// if this.Start+this.Pos >= len(this.Input) {
+	// 	this.Emit(TOKEN_EOF)
+	// }
 	return r
 }
 
@@ -99,9 +101,9 @@ func (this *Lexer) Inc() {
 	}
 	_, size := utf8.DecodeRuneInString(this.InputToEnd())
 	this.Pos += size
-	if this.Start+this.Pos >= len(this.Input) {
-		this.Emit(TOKEN_EOF)
-	}
+	// if this.Start+this.Pos >= len(this.Input) {
+	// 	this.Emit(TOKEN_EOF)
+	// }
 }
 
 func (this *Lexer) Back() {

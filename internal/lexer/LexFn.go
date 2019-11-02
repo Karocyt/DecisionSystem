@@ -12,9 +12,23 @@ const Debug = false
 
 func LexFnSpacesJumpWrapper(this *Lexer, fn LexFn) LexFn {
 	this.SkipWhitespace()
+	r := this.Peek()
+	if r == '\n' {
+		if Debug {
+			println("\tNewline")
+		}
+		this.Pos++
+		this.Emit(TOKEN_EOL)
+		return LexBegin
+	} else if r == RuneError {
+		if Debug {
+			println("EOF")
+		}
+		this.Pos++
+		return LexEnd
+	}
 	return fn
 }
-
 
 /*
 This lexer function starts everything off. It determines if we are
@@ -38,6 +52,9 @@ func LexBegin(this *Lexer) LexFn {
 }
 
 func LexFalse(this *Lexer) LexFn {
+	if Debug {
+		println("Start LexFalse")
+	}
 	this.Pos += len(FALSE)
 	this.Emit(TOKEN_FALSE)
 	r := this.Peek()
@@ -223,7 +240,6 @@ func LexFact(this *Lexer) LexFn {
 		println("Start LexFact")
 	}
 	if strings.ContainsRune(KEYS, this.Next()) {
-		this.Inc()
 		this.Emit(TOKEN_KEY)
 		return LexFnSpacesJumpWrapper(this, LexFact)
 	} else {

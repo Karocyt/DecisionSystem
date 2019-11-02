@@ -1,6 +1,6 @@
 Z+X=>Y
-A+B+!(C|D)<=>!Z
-!G+H=>Z
-A^!G=>Z
+A+B+!(C|D)<=>Z
+!G+H=>Z|X
+A^!G=>Z^X
 =ABG
 ?GVX

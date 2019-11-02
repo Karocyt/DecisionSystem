@@ -25,12 +25,16 @@ func getInput() (string, error) {
 
 func main() {
 	input, e := getInput()
+	count := 1
 	if e == nil {
 		l := lexer.BeginLexing(input, os.Args[1])
-		for t := <-l.Tokens; l.Error == nil; t = <-l.Tokens {
-			fmt.Printf("Token: %s\n", t.Value)
+		for t := range l.Tokens {
+			if l.Error != nil {
+				break
+			}
+			if t.Type > 0 {count++}
 		}
-		if l.Error != nil {
+		if count > 0 && l.Error != nil {
 			fmt.Println(l.Error)
 		}
 	}
