@@ -32,7 +32,9 @@ func main() {
 			if l.Error != nil {
 				break
 			}
-			if t.Type > 0 {count++}
+			if t.Type > 0 {
+				count++
+			}
 		}
 		if count > 0 && l.Error != nil {
 			fmt.Println(l.Error)

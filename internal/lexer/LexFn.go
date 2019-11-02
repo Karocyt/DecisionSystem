@@ -13,19 +13,10 @@ const Debug = false
 func LexFnSpacesJumpWrapper(this *Lexer, fn LexFn) LexFn {
 	this.SkipWhitespace()
 	r := this.Peek()
-	if r == '\n' {
-		if Debug {
-			println("\tNewline")
+	if r == '#' {
+		for ; r != '\n' && r != RuneError; r = this.Peek() {
+			this.Jump(r)
 		}
-		this.Pos++
-		this.Emit(TOKEN_EOL)
-		return LexBegin
-	} else if r == RuneError {
-		if Debug {
-			println("EOF")
-		}
-		this.Pos++
-		return LexEnd
 	}
 	return fn
 }
@@ -38,14 +29,18 @@ func LexBegin(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexBegin")
 	}
-	this.SkipWhitespace()
 
-	if strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
-		return LexLeftBracket
-	} else if strings.HasPrefix(this.InputToEnd(), EQUALS) {
-		return LexEquals
-	} else if strings.HasPrefix(this.InputToEnd(), QUERY) {
-		return LexQuery
+	str := this.InputToEnd()
+	if strings.HasPrefix(str, LEFT_BRACKET) {
+		return LexFnSpacesJumpWrapper(this, LexLeftBracket)
+	} else if strings.HasPrefix(str, EQUALS) {
+		return LexFnSpacesJumpWrapper(this, LexEquals)
+	} else if strings.HasPrefix(str, QUERY) {
+		return LexFnSpacesJumpWrapper(this, LexQuery)
+	} else if strings.HasPrefix(str, "\n") {
+		this.Jump('\n')
+		this.NewLine()
+		return LexFnSpacesJumpWrapper(this, LexBegin)
 	} else {
 		return LexFnSpacesJumpWrapper(this, LexKey)
 	}
@@ -57,10 +52,6 @@ func LexFalse(this *Lexer) LexFn {
 	}
 	this.Pos += len(FALSE)
 	this.Emit(TOKEN_FALSE)
-	r := this.Peek()
-	if !strings.ContainsRune(KEYS, r) && !strings.HasPrefix(this.InputToEnd(), LEFT_BRACKET) {
-		this.Error = &LexingError{this, fmt.Sprintf("%c", r), "capital letter or '('", this.Line, this.PosInLine()}
-	}
 	return LexFnSpacesJumpWrapper(this, LexKey)
 }
 
@@ -77,15 +68,11 @@ func LexKeyQuery(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexKeyQuery")
 	}
-	r := this.Next()
-	if strings.ContainsRune(KEYS, r) {
+	if this.ParseKey() {
 		this.Emit(TOKEN_KEY)
 		return LexFnSpacesJumpWrapper(this, LexKeyQuery)
-	} else if r == rune(10) {
-		this.Error = &LexingError{this, "newline", "capital letter or EOF", this.Line, this.PosInLine()}
-		return LexError
 	}
-	return LexEnd // To check, bad shit could be afterwards
+	return LexFnSpacesJumpWrapper(this, LexEndLine) // To check, bad shit could be afterwards
 }
 
 /*
@@ -119,18 +106,16 @@ func LexKey(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexKey")
 	}
-	r := this.Peek()
 	str := this.InputToEnd()
 	if strings.HasPrefix(str, FALSE) {
 		return LexFalse
-	} else if strings.ContainsRune(KEYS, r) {
-		this.Inc()
+	} else if this.ParseKey() {
 		this.Emit(TOKEN_KEY)
 		return LexFnSpacesJumpWrapper(this, LexSymbol)
 	} else if strings.HasPrefix(str, LEFT_BRACKET) {
 		return LexLeftBracket
 	} else {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter or '('", this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('", this.Line, this.PosInLine()}
 		return LexError
 	}
 }
@@ -185,45 +170,31 @@ func LexResult(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexResult")
 	}
-	r := this.Next()
-	if strings.ContainsRune(KEYS, r) {
+	if this.ParseKey() {
 		this.Emit(TOKEN_KEY)
 	} else {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter", this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter", this.Line, this.PosInLine()}
 		return LexError
 	}
-	r = this.Next()
-	if strings.ContainsRune(OPERATORS, r) {
+	this.SkipWhitespace()
+	if strings.ContainsRune(OPERATORS, this.Peek()) {
 		if Debug {
 			println("\tOperator found")
 		}
+		this.Inc()
 		this.Emit(TOKEN_OPERATOR)
-		r = this.Next()
-		if strings.ContainsRune(KEYS, r) {
+		this.SkipWhitespace()
+		if this.ParseKey() {
 			if Debug {
 				println("\tKey found")
 			}
 			this.Emit(TOKEN_KEY)
 		} else {
-			this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "capital letter", this.Line, this.PosInLine()}
+			this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter", this.Line, this.PosInLine()}
 			return LexError
 		}
-		r = this.Next()
 	}
-	if r == '\n' {
-		if Debug {
-			println("\tNewline")
-		}
-		this.Emit(TOKEN_EOL)
-		return LexBegin
-	} else if r == RuneError {
-		if Debug {
-			println("EOF")
-		}
-		return LexEnd
-	}
-	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "newline or EOF", this.Line, this.PosInLine()}
-	return LexError
+	return LexFnSpacesJumpWrapper(this, LexEndLine)
 }
 
 func LexEquals(this *Lexer) LexFn {
@@ -239,11 +210,11 @@ func LexFact(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexFact")
 	}
-	if strings.ContainsRune(KEYS, this.Next()) {
+	if this.ParseKey() {
 		this.Emit(TOKEN_KEY)
 		return LexFnSpacesJumpWrapper(this, LexFact)
 	} else {
-		return LexEnd
+		return LexEndLine
 	}
 }
 
@@ -255,10 +226,25 @@ func LexError(this *Lexer) LexFn {
 	return nil
 }
 
-func LexEnd(this *Lexer) LexFn {
+func LexEndLine(this *Lexer) LexFn {
 	if Debug {
-		println("Start LexEnd")
+		println("Start LexEndLine")
 	}
-	close(this.Tokens)
-	return nil
+	if this.Peek() == '\n' {
+		if Debug {
+			println("\tNewline")
+		}
+		this.Inc()	
+		this.Emit(TOKEN_EOL)
+		this.NewLine()
+		return LexFnSpacesJumpWrapper(this, LexBegin)
+	} else if this.Peek() == RuneError {
+		if Debug {
+			println("EOF")
+		}
+		close(this.Tokens)
+		return nil
+	}
+	this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "newline or EOF", this.Line, this.PosInLine()}
+	return LexError
 }
