@@ -1,8 +1,12 @@
 # Expert System
 Lexer and forward/backward chaining inference engine
-Written as Go Module in Golang (go1.12)
+Written as Go Modules in Golang.
+It includes:
 
-# Compilation / Install
+## Lexer
+Following [Rob Pike presentation on Lexical Scanning in Go](https://www.youtube.com/watch?v=HxaD_trXwRE)
+
+# Compilation
 
 	go build -o expert_system
 Compile expert_system app

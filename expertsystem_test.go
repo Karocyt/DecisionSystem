@@ -1,32 +1,40 @@
 package main
 
 import (
-	"github.com/Karocyt/expertsystem/internal/lexer"
-	"testing"
-	"io/ioutil"
 	"fmt"
+	"github.com/Karocyt/expertsystem/internal/lexer"
+	"io/ioutil"
+	"testing"
 )
 
 func TestTokenLoop(test *testing.T) {
 	var flag int
-	if lexer.Debug {println("--- Start TestTokenLoop ---")}
+	if lexer.Debug {
+		println("--- Start TestTokenLoop ---")
+	}
 	l := lexer.BeginLexing("A+B=>C", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 { flag++ }
+		if t.Type != 99 {
+			flag++
+		}
 	}
 	if l.Error != nil {
 		test.Error(l.Error)
 	} else if flag == 0 {
-		test.Error(&lexer.LexingError{Lexer: l,Expected: "Token",Got: "nothing",Line: l.Line,Pos: l.PosInLine()})
+		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing", Line: l.Line, Pos: l.PosInLine()})
 	}
 }
 
 func TestNoResult(test *testing.T) {
 	var flag int
-	if lexer.Debug {println("--- Start TestNoResult ---")}
+	if lexer.Debug {
+		println("--- Start TestNoResult ---")
+	}
 	l := lexer.BeginLexing("A+B=>", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 { flag++ }
+		if t.Type != 99 {
+			flag++
+		}
 	}
 	if l.Error == nil {
 		test.Error()
@@ -35,10 +43,14 @@ func TestNoResult(test *testing.T) {
 
 func TestNoOperator(test *testing.T) {
 	var flag int
-	if lexer.Debug {println("--- Start TestNoOperator ---")}
+	if lexer.Debug {
+		println("--- Start TestNoOperator ---")
+	}
 	l := lexer.BeginLexing("AB=>C", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 { flag++ }
+		if t.Type != 99 {
+			flag++
+		}
 	}
 	if l.Error == nil {
 		test.Error()
@@ -47,10 +59,14 @@ func TestNoOperator(test *testing.T) {
 
 func TestDoubleResult(test *testing.T) {
 	var flag int
-	if lexer.Debug {println("--- Start TestDoubleResult ---")}
+	if lexer.Debug {
+		println("--- Start TestDoubleResult ---")
+	}
 	l := lexer.BeginLexing("A+!B=>CD", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 { flag++ }
+		if t.Type != 99 {
+			flag++
+		}
 	}
 	if l.Error == nil {
 		test.Error()
@@ -59,10 +75,14 @@ func TestDoubleResult(test *testing.T) {
 
 func TestFalseValues(test *testing.T) {
 	var flag int
-	if lexer.Debug {println("--- Start TestFalseValues ---")}
+	if lexer.Debug {
+		println("--- Start TestFalseValues ---")
+	}
 	l := lexer.BeginLexing("A+!B=>C", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 { flag++ }
+		if t.Type != 99 {
+			flag++
+		}
 	}
 	if l.Error != nil {
 		test.Error(l.Error)
@@ -71,7 +91,9 @@ func TestFalseValues(test *testing.T) {
 
 func TestInput1(test *testing.T) {
 	var flag int
-	if lexer.Debug {println("--- Start TestInput1 ---")}
+	if lexer.Debug {
+		println("--- Start TestInput1 ---")
+	}
 	file := "testdata/input1.txt"
 	content, e := ioutil.ReadFile(file)
 	str := string(content)
@@ -80,11 +102,13 @@ func TestInput1(test *testing.T) {
 	}
 	l := lexer.BeginLexing(str, file)
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 { flag++ }
+		if t.Type != 99 {
+			flag++
+		}
 	}
 	if l.Error != nil {
 		test.Error(l.Error)
 	} else if flag == 0 {
-		test.Error(&lexer.LexingError{Lexer: l,Expected: "Token",Got: "nothing",Line: l.Line,Pos: l.PosInLine()})
+		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing", Line: l.Line, Pos: l.PosInLine()})
 	}
 }
