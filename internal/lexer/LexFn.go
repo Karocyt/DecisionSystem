@@ -146,7 +146,7 @@ func LexKey(this *Lexer) LexFn {
 
 /*
 
-*/
+ */
 func LexSymbol(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexSymbol")
@@ -259,7 +259,7 @@ func LexEndLine(this *Lexer) LexFn {
 		if Debug {
 			println("\tNewline")
 		}
-		this.Inc()	
+		this.Inc()
 		this.Emit(TOKEN_EOL)
 		this.NewLine()
 		return LexFnSpacesJumpWrapper(this, LexBegin)
