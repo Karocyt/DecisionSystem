@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/Karocyt/expertsystem/internal/lexer"
+	"github.com/Karocyt/expertsystem/internal/parser"
 	"io/ioutil"
 	"os"
 )
@@ -27,17 +27,10 @@ func main() {
 	input, e := getInput()
 	count := 1
 	if e == nil {
-		l := lexer.BeginLexing(input, os.Args[1])
-		for t := range l.Tokens {
-			if l.Error != nil {
-				break
-			}
-			if t.Type > 0 {
-				count++
-			}
-		}
-		if count > 0 && l.Error != nil {
-			fmt.Println(l.Error)
+		count, e = parser.Parse(input, os.Args[1])
+		if count > 0 && e != nil {
+			fmt.Println(e)
 		}
 	}
+	return
 }
