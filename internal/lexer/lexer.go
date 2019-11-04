@@ -17,6 +17,8 @@ type Lexer struct {
 	State         LexFn
 	BracketsCount int
 	Error         error
+	Facts         bool
+	Query		  bool
 
 	Start int
 	Pos   int
