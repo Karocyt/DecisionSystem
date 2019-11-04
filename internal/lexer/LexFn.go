@@ -115,7 +115,7 @@ func LexKey(this *Lexer) LexFn {
 	} else if strings.HasPrefix(str, LEFT_BRACKET) {
 		return LexLeftBracket
 	} else {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('", this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('"}
 		return LexError
 	}
 }
@@ -162,7 +162,7 @@ func LexOperator(this *Lexer) LexFn {
 		this.Emit(TOKEN_OPERATOR)
 		return LexFnSpacesJumpWrapper(this, LexKey)
 	}
-	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "operator", this.Line, this.PosInLine()}
+	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "operator"}
 	return LexError
 }
 
@@ -173,7 +173,7 @@ func LexResult(this *Lexer) LexFn {
 	if this.ParseKey() {
 		this.Emit(TOKEN_KEY)
 	} else {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter", this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter"}
 		return LexError
 	}
 	this.SkipWhitespace()
@@ -190,7 +190,7 @@ func LexResult(this *Lexer) LexFn {
 			}
 			this.Emit(TOKEN_KEY)
 		} else {
-			this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter", this.Line, this.PosInLine()}
+			this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter"}
 			return LexError
 		}
 	}
@@ -245,6 +245,6 @@ func LexEndLine(this *Lexer) LexFn {
 		close(this.Tokens)
 		return nil
 	}
-	this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "newline or EOF", this.Line, this.PosInLine()}
+	this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "newline or EOF"}
 	return LexError
 }

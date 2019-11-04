@@ -26,21 +26,21 @@ type LexingError struct {
 	Lexer    *Lexer
 	Got      string
 	Expected string
-	Line     int
-	Pos      int
 }
 
 var boldBlack *color.Color = color.New(color.Bold, color.FgBlack)
 var boldRed *color.Color = color.New(color.Bold, color.FgRed)
 
-func (this *LexingError) Error() string {
-	return fmt.Sprintf("%s %s Something when wrong while processing input data, got %s when expecting %s.\n",
-		boldBlack.Sprint(fmt.Sprintf("%s:%d:%d:", this.Lexer.Name, this.Line, this.Pos)),
-		boldRed.Sprint("LexingError:"), boldBlack.Sprint(this.Got),
-		boldBlack.Sprint(this.Expected))
+func (this Lexer) String() string {
+	return boldBlack.Sprintf("%s:%d:%d:", this.Name, this.Line, this.Start - this.PosToLine)
 }
 
-func (this *Lexer) PosInLine() int {
+func (this LexingError) Error() string {
+	return fmt.Sprintf("%s %s Something when wrong while processing input data, got %s when expecting %s.\n",
+		this.Lexer, boldRed.Sprint("LexingError:"), boldBlack.Sprint(this.Got), boldBlack.Sprint(this.Expected))
+}
+
+func (this Lexer) PosInLine() int {
 	return this.Start - this.PosToLine
 }
 
@@ -61,7 +61,7 @@ func (this *Lexer) Emit(tokenType TokenType) {
 /*
 Returns current rune at Pos
 */
-func (this *Lexer) Peek() (r rune) {
+func (this Lexer) Peek() (r rune) {
 	if Debug {
 		println("\tPeek")
 	}
@@ -102,7 +102,7 @@ func (this *Lexer) Inc() {
 /*
 Return a slice of the input from the current pos to the end of the input string.
 */
-func (this *Lexer) InputToEnd() string {
+func (this Lexer) InputToEnd() string {
 	return this.Input[this.Pos:]
 }
 
