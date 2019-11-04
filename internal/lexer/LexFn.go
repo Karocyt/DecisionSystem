@@ -37,9 +37,11 @@ func LexBegin(this *Lexer) LexFn {
 	str := this.InputToEnd()
 	if strings.HasPrefix(str, LEFT_BRACKET) {
 		return LexFnSpacesJumpWrapper(this, LexLeftBracket)
-	} else if strings.HasPrefix(str, EQUALS) {
+	} else if !this.Facts && strings.HasPrefix(str, EQUALS) {
+		this.Facts = true
 		return LexFnSpacesJumpWrapper(this, LexEquals)
-	} else if strings.HasPrefix(str, QUERY) {
+	} else if !this.Query && strings.HasPrefix(str, QUERY) {
+		this.Query = true
 		return LexFnSpacesJumpWrapper(this, LexQuery)
 	} else if strings.HasPrefix(str, "\n") {
 		this.Jump('\n')
@@ -113,6 +115,7 @@ func LexRightBracket(this *Lexer) LexFn {
 	this.Pos += len(RIGHT_BRACKET)
 	this.BracketsCount -= 1
 	if this.BracketsCount < 0 {
+		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('", this.Line, this.PosInLine()}
 		return LexError
 	}
 	this.Emit(TOKEN_RIGHT_BRACKET)
@@ -163,6 +166,9 @@ func LexImplies(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexImplies")
 	}
+	if this.BracketsCount != 0 {
+		this.Error = &LexingError{this, IMPLIES, RIGHT_BRACKET, this.Line, this.PosInLine()}
+	}
 	this.Pos += len(IMPLIES)
 	this.Emit(TOKEN_IMPLIES)
 	return LexFnSpacesJumpWrapper(this, LexResult)
@@ -171,6 +177,9 @@ func LexImplies(this *Lexer) LexFn {
 func LexIfOnlyIf(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexIfOnlyIf")
+	}
+	if this.BracketsCount != 0 {
+		this.Error = &LexingError{this, IF_ONLY_IF, RIGHT_BRACKET, this.Line, this.PosInLine()}
 	}
 	this.Pos += len(IF_ONLY_IF)
 	this.Emit(TOKEN_IF_ONLY_IF)
@@ -242,14 +251,6 @@ func LexFact(this *Lexer) LexFn {
 	}
 }
 
-func LexError(this *Lexer) LexFn {
-	if Debug {
-		println("Start LexError")
-	}
-	close(this.Tokens)
-	return nil
-}
-
 func LexEndLine(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexEndLine")
@@ -266,9 +267,28 @@ func LexEndLine(this *Lexer) LexFn {
 		if Debug {
 			println("EOF")
 		}
-		close(this.Tokens)
-		return nil
+		return LexEnd
 	}
 	this.Error = LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "newline or EOF"}
+	return LexError
+}
+
+func LexError(this *Lexer) LexFn {
+	if Debug {
+		println("Start LexError")
+	}
+	close(this.Tokens)
+	return nil
+}
+
+func LexEnd(this *Lexer) LexFn {
+	if this.Query && this.Facts {
+		close(this.Tokens)
+		return nil
+	} else if !this.Facts {
+		this.Error = &LexingError{this, "end of file", "Facts", this.Line, this.PosInLine()}
+	} else {
+		this.Error = &LexingError{this, "end of file", "Query", this.Line, this.PosInLine()}
+	}
 	return LexError
 }

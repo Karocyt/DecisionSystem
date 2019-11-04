@@ -6,4 +6,4 @@ Plumes => Animal						# Un truc à Plumes est un Animal
 Voler + ! Avion => Oiseau
 
 = Plumes Voler
-?OiseauNager							# Oiseau = True, Nager = False
+? Oiseau Nager							# Oiseau = True, Nager = False

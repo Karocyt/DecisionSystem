@@ -16,7 +16,13 @@ type Lexer struct {
 	Tokens        chan LexToken
 	State         LexFn
 	BracketsCount int
+<<<<<<< Updated upstream
 	Error         error
+=======
+	Facts         bool
+	Query		  bool
+	Error         *LexingError
+>>>>>>> Stashed changes
 
 	Start int
 	Pos   int
