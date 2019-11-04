@@ -1,18 +1,15 @@
-package main
+package lexer
 
 import (
-	//	"fmt"
-	"github.com/Karocyt/expertsystem/internal/lexer"
-	//	"io/ioutil"
 	"testing"
 )
 
 func TestNoResult(test *testing.T) {
 	var flag int
-	if lexer.Debug {
+	if Debug {
 		println("--- Start TestNoResult ---")
 	}
-	l := lexer.BeginLexing("N+M=>", "ghostFile")
+	l := BeginLexing("N+M=>", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -25,10 +22,10 @@ func TestNoResult(test *testing.T) {
 
 func TestNoOperator(test *testing.T) {
 	var flag int
-	if lexer.Debug {
+	if Debug {
 		println("--- Start TestNoOperator ---")
 	}
-	l := lexer.BeginLexing("KL=>X", "ghostFile")
+	l := BeginLexing("KL=>X", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -41,10 +38,10 @@ func TestNoOperator(test *testing.T) {
 
 func TestDoubleResult(test *testing.T) {
 	var flag int
-	if lexer.Debug {
+	if Debug {
 		println("--- Start TestDoubleResult ---")
 	}
-	l := lexer.BeginLexing("P+!Q=>TY", "ghostFile")
+	l := BeginLexing("P+!Q=>TY", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -57,10 +54,10 @@ func TestDoubleResult(test *testing.T) {
 
 func TestCommentMiddle(test *testing.T) {
 	var flag int
-	if lexer.Debug {
+	if Debug {
 		println("--- Start TestCommentMiddle ---")
 	}
-	l := lexer.BeginLexing("P+!Q#=>T", "ghostFile")
+	l := BeginLexing("P+!Q#=>T", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
