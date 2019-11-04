@@ -21,55 +21,7 @@ func TestTokenLoop(test *testing.T) {
 	if l.Error != nil {
 		test.Error(l.Error)
 	} else if flag == 0 {
-		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing", Line: l.Line, Pos: l.PosInLine()})
-	}
-}
-
-func TestNoResult(test *testing.T) {
-	var flag int
-	if lexer.Debug {
-		println("--- Start TestNoResult ---")
-	}
-	l := lexer.BeginLexing("A+B=>", "ghostFile")
-	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 {
-			flag++
-		}
-	}
-	if l.Error == nil {
-		test.Error()
-	}
-}
-
-func TestNoOperator(test *testing.T) {
-	var flag int
-	if lexer.Debug {
-		println("--- Start TestNoOperator ---")
-	}
-	l := lexer.BeginLexing("AB=>C", "ghostFile")
-	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 {
-			flag++
-		}
-	}
-	if l.Error == nil {
-		test.Error()
-	}
-}
-
-func TestDoubleResult(test *testing.T) {
-	var flag int
-	if lexer.Debug {
-		println("--- Start TestDoubleResult ---")
-	}
-	l := lexer.BeginLexing("A+!B=>CD", "ghostFile")
-	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
-		if t.Type != 99 {
-			flag++
-		}
-	}
-	if l.Error == nil {
-		test.Error()
+		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing"})
 	}
 }
 
@@ -78,7 +30,7 @@ func TestFalseValues(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestFalseValues ---")
 	}
-	l := lexer.BeginLexing("A+!B=>C", "ghostFile")
+	l := lexer.BeginLexing("S+!R=>F", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -86,6 +38,70 @@ func TestFalseValues(test *testing.T) {
 	}
 	if l.Error != nil {
 		test.Error(l.Error)
+	}
+}
+
+func TestFullWords(test *testing.T) {
+	var flag int
+	if lexer.Debug {
+		println("--- Start TestDoubleResult ---")
+	}
+	l := lexer.BeginLexing("Hello+!World=>Working #Prout", "ghostFile")
+	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
+		if t.Type != 99 {
+			flag++
+		}
+	}
+	if l.Error != nil {
+		test.Error()
+	}
+}
+
+func TestCommentEOL(test *testing.T) {
+	var flag int
+	if lexer.Debug {
+		println("--- Start TestCommentEOL ---")
+	}
+	l := lexer.BeginLexing("Comment+!Soon=>Ok #Prout", "ghostFile")
+	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
+		if t.Type != 99 {
+			flag++
+		}
+	}
+	if l.Error != nil {
+		test.Error()
+	}
+}
+
+func TestCommentFirstLastLine(test *testing.T) {
+	var flag int
+	if lexer.Debug {
+		println("--- Start TestCommentFirstLastLine ---")
+	}
+	l := lexer.BeginLexing("#Blabla\nComment=>Passed #Prout", "ghostFile")
+	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
+		if t.Type != 99 {
+			flag++
+		}
+	}
+	if l.Error != nil {
+		test.Error()
+	}
+}
+
+func TestSpaces(test *testing.T) {
+	var flag int
+	if lexer.Debug {
+		println("--- Start TestSpaces ---")
+	}
+	l := lexer.BeginLexing("  Spaces\t+ \t Everywhere => \tOk \t#Prout", "ghostFile")
+	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
+		if t.Type != 99 {
+			flag++
+		}
+	}
+	if l.Error != nil {
+		test.Error()
 	}
 }
 
@@ -109,6 +125,6 @@ func TestInput1(test *testing.T) {
 	if l.Error != nil {
 		test.Error(l.Error)
 	} else if flag == 0 {
-		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing", Line: l.Line, Pos: l.PosInLine()})
+		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing"})
 	}
 }
