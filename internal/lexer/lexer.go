@@ -16,7 +16,7 @@ type Lexer struct {
 	Tokens        chan LexToken
 	State         LexFn
 	BracketsCount int
-	Error         *LexingError
+	Error         error
 
 	Start int
 	Pos   int
