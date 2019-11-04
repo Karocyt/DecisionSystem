@@ -125,6 +125,6 @@ func TestInput1(test *testing.T) {
 	if l.Error != nil {
 		test.Error(l.Error)
 	} else if flag == 0 {
-		test.Error(&lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing"})
+		test.Error(lexer.LexingError{Lexer: l, Expected: "Token", Got: "nothing"})
 	}
 }

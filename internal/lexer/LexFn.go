@@ -10,6 +10,9 @@ type LexFn func(*Lexer) LexFn
 const RuneError = '\uFFFD' // the "error" Rune or "Unicode replacement character"
 const Debug = false
 
+/*
+Jumps all spaces before to transit to return the next state passed as parameter
+*/
 func LexFnSpacesJumpWrapper(this *Lexer, fn LexFn) LexFn {
 	this.SkipWhitespace()
 	r := this.Peek()
@@ -22,8 +25,9 @@ func LexFnSpacesJumpWrapper(this *Lexer, fn LexFn) LexFn {
 }
 
 /*
-This lexer function starts everything off. It determines if we are
-beginning with a bracket, a key or facts.
+This lexer function starts everything off. It determines which state
+should be next considering the first runes in the string.
+Does not jumps Spaces, need to be wrapped in LexFnSpacesJumpWrapper at first launch
 */
 func LexBegin(this *Lexer) LexFn {
 	if Debug {
@@ -46,6 +50,9 @@ func LexBegin(this *Lexer) LexFn {
 	}
 }
 
+/*
+Emits a FALSE token then returns LexKey, to determine what is false.
+*/
 func LexFalse(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexFalse")
@@ -55,6 +62,9 @@ func LexFalse(this *Lexer) LexFn {
 	return LexFnSpacesJumpWrapper(this, LexKey)
 }
 
+/*
+Emits QUERY token then transit to LexKeyQuery state
+*/
 func LexQuery(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexQuery")
@@ -64,6 +74,9 @@ func LexQuery(this *Lexer) LexFn {
 	return LexFnSpacesJumpWrapper(this, LexKeyQuery)
 }
 
+/*
+Inside a QUERY line, emits a KEY token if there is then recursively transits or LexEnd
+*/
 func LexKeyQuery(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexKeyQuery")
@@ -89,6 +102,10 @@ func LexLeftBracket(this *Lexer) LexFn {
 	return LexFnSpacesJumpWrapper(this, LexKey)
 }
 
+/*
+This lexer function emits a TOKEN_RIGHT_BRACKET then returns
+the lexer for a key.
+*/
 func LexRightBracket(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexRightBracket")
@@ -102,6 +119,10 @@ func LexRightBracket(this *Lexer) LexFn {
 	return LexFnSpacesJumpWrapper(this, LexSymbol)
 }
 
+/*
+Main Key Lexer, transits to False if needed, then emits
+either Key (to transit to symbol) or transits to LeftBracket
+*/
 func LexKey(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexKey")
@@ -115,11 +136,14 @@ func LexKey(this *Lexer) LexFn {
 	} else if strings.HasPrefix(str, LEFT_BRACKET) {
 		return LexLeftBracket
 	} else {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('"}
+		this.Error = LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('"}
 		return LexError
 	}
 }
 
+/*
+
+*/
 func LexSymbol(this *Lexer) LexFn {
 	if Debug {
 		println("Start LexSymbol")
@@ -162,7 +186,7 @@ func LexOperator(this *Lexer) LexFn {
 		this.Emit(TOKEN_OPERATOR)
 		return LexFnSpacesJumpWrapper(this, LexKey)
 	}
-	this.Error = &LexingError{this, fmt.Sprintf("'%c'", r), "operator"}
+	this.Error = LexingError{this, fmt.Sprintf("'%c'", r), "operator"}
 	return LexError
 }
 
@@ -173,7 +197,7 @@ func LexResult(this *Lexer) LexFn {
 	if this.ParseKey() {
 		this.Emit(TOKEN_KEY)
 	} else {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter"}
+		this.Error = LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter"}
 		return LexError
 	}
 	this.SkipWhitespace()
@@ -190,7 +214,7 @@ func LexResult(this *Lexer) LexFn {
 			}
 			this.Emit(TOKEN_KEY)
 		} else {
-			this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter"}
+			this.Error = LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter"}
 			return LexError
 		}
 	}
@@ -245,6 +269,6 @@ func LexEndLine(this *Lexer) LexFn {
 		close(this.Tokens)
 		return nil
 	}
-	this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "newline or EOF"}
+	this.Error = LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "newline or EOF"}
 	return LexError
 }
