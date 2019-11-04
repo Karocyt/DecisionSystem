@@ -1,9 +1,9 @@
 package main
 
 import (
-//	"fmt"
+	//	"fmt"
 	"github.com/Karocyt/expertsystem/internal/lexer"
-//	"io/ioutil"
+	//	"io/ioutil"
 	"testing"
 )
 

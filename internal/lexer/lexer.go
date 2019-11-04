@@ -3,9 +3,9 @@ package lexer
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"unicode/utf8"
-	"unicode"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 type Lexer struct {
@@ -18,7 +18,7 @@ type Lexer struct {
 	BracketsCount int
 	Error         error
 	Facts         bool
-	Query		  bool
+	Query         bool
 
 	Start int
 	Pos   int
@@ -34,7 +34,7 @@ var boldBlack *color.Color = color.New(color.Bold, color.FgBlack)
 var boldRed *color.Color = color.New(color.Bold, color.FgRed)
 
 func (this Lexer) String() string {
-	return boldBlack.Sprintf("%s:%d:%d:", this.Name, this.Line, this.Start - this.PosToLine)
+	return boldBlack.Sprintf("%s:%d:%d:", this.Name, this.Line, this.Start-this.PosToLine)
 }
 
 func (this LexingError) Error() string {
