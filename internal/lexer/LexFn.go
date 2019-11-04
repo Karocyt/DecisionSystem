@@ -115,7 +115,7 @@ func LexRightBracket(this *Lexer) LexFn {
 	this.Pos += len(RIGHT_BRACKET)
 	this.BracketsCount -= 1
 	if this.BracketsCount < 0 {
-		this.Error = &LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('", this.Line, this.PosInLine()}
+		this.Error = LexingError{this, fmt.Sprintf("'%c'", this.Peek()), "capital letter or '('"}
 		return LexError
 	}
 	this.Emit(TOKEN_RIGHT_BRACKET)
@@ -167,7 +167,7 @@ func LexImplies(this *Lexer) LexFn {
 		println("Start LexImplies")
 	}
 	if this.BracketsCount != 0 {
-		this.Error = &LexingError{this, IMPLIES, RIGHT_BRACKET, this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, IMPLIES, RIGHT_BRACKET}
 	}
 	this.Pos += len(IMPLIES)
 	this.Emit(TOKEN_IMPLIES)
@@ -179,7 +179,7 @@ func LexIfOnlyIf(this *Lexer) LexFn {
 		println("Start LexIfOnlyIf")
 	}
 	if this.BracketsCount != 0 {
-		this.Error = &LexingError{this, IF_ONLY_IF, RIGHT_BRACKET, this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, IF_ONLY_IF, RIGHT_BRACKET}
 	}
 	this.Pos += len(IF_ONLY_IF)
 	this.Emit(TOKEN_IF_ONLY_IF)
@@ -286,9 +286,9 @@ func LexEnd(this *Lexer) LexFn {
 		close(this.Tokens)
 		return nil
 	} else if !this.Facts {
-		this.Error = &LexingError{this, "end of file", "Facts", this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, "end of file", "Facts"}
 	} else {
-		this.Error = &LexingError{this, "end of file", "Query", this.Line, this.PosInLine()}
+		this.Error = &LexingError{this, "end of file", "Query"}
 	}
 	return LexError
 }
