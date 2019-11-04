@@ -12,7 +12,7 @@ func TestTokenLoop(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestTokenLoop ---")
 	}
-	l := lexer.BeginLexing("A+B=>C", "ghostFile")
+	l := lexer.BeginLexing("A+B=>C\n=A\n?B", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -30,7 +30,7 @@ func TestFalseValues(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestFalseValues ---")
 	}
-	l := lexer.BeginLexing("S+!R=>F", "ghostFile")
+	l := lexer.BeginLexing("S+!R=>F\n=A\n?B", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -46,7 +46,7 @@ func TestFullWords(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestDoubleResult ---")
 	}
-	l := lexer.BeginLexing("Hello+!World=>Working #Prout", "ghostFile")
+	l := lexer.BeginLexing("Hello+!World=>Working #Prout\n=A\n?B", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -62,7 +62,7 @@ func TestCommentEOL(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestCommentEOL ---")
 	}
-	l := lexer.BeginLexing("Comment+!Soon=>Ok #Prout", "ghostFile")
+	l := lexer.BeginLexing("Comment+!Soon=>Ok #Prout\n=A\n?B", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -78,7 +78,7 @@ func TestCommentFirstLastLine(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestCommentFirstLastLine ---")
 	}
-	l := lexer.BeginLexing("#Blabla\nComment=>Passed #Prout", "ghostFile")
+	l := lexer.BeginLexing("#Blabla\nComment=>Passed #Prout\n=A\n?B", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
@@ -94,7 +94,7 @@ func TestSpaces(test *testing.T) {
 	if lexer.Debug {
 		println("--- Start TestSpaces ---")
 	}
-	l := lexer.BeginLexing("  Spaces\t+ \t Everywhere => \tOk \t#Prout", "ghostFile")
+	l := lexer.BeginLexing("  Spaces\t+ \t Everywhere => \tOk \t#Prout\n=A\n?B", "ghostFile")
 	for t := <-l.Tokens; l.State != nil; t = <-l.Tokens {
 		if t.Type != 99 {
 			flag++
