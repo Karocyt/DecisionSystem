@@ -27,6 +27,9 @@ func Parse(input string, filename string) (count int, e error) {
 				l.Error = errors.New("Line too long.")
 				break
 			}
+		} else {
+			l.Error = errors.New("Unexpected error.")
+			break
 		}
 
 
