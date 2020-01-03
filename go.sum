@@ -1,3 +1,5 @@
+github.com/Karocyt/expertsystem/internal/lexer v0.0.0-20191104061309-34378baa964c h1:vAeLb6RPE6If1+FDMlhv+dukSxx2Sts4XPgU8+3U/jU=
+github.com/Karocyt/expertsystem/internal/lexer v0.0.0-20191104061309-34378baa964c/go.mod h1:13wDZLtQCvLTIAkSlSSTGXq9xu8EHWFLWhaprkL5mNY=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/mattn/go-colorable v0.1.4 h1:snbPLB8fVfU9iwbbo30TPtbLRzwWu6aJS6Xh4eaaviA=
