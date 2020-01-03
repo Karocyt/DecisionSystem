@@ -9,7 +9,7 @@ import (
 const MAX_ITEMS = 50
 
 
-func process_line(a []lexer.LexToken) {
+func process_line(a []lexer.LexToken) { //Left to do: Polish notation refactoring, array of tokens
 	fmt.Println(a)
 	fmt.Println("\n")
 }
@@ -37,9 +37,6 @@ func Parse(input string, filename string) (count int, e error) {
 			l.Error = errors.New("Unexpected error.")
 			break
 		}
-
-
-
 	}
 	e = l.Error
 	return
