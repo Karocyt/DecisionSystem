@@ -23,7 +23,7 @@ func Parse(input string, filename string) (count int, e error) {
 			a = append(a, t)
 			fmt.Println(a[len(a)-1])
 			count++
-			if count == MAX_ITEMS {
+			if len(a) == MAX_ITEMS {
 				l.Error = errors.New("Line too long.")
 				break
 			}
