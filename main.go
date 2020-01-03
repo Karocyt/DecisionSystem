@@ -25,6 +25,10 @@ func getInput() (string, error) {
 
 func main() {
 	input, e := getInput()
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
 	count := 1
 	if e == nil {
 		count, e = parser.Parse(input, os.Args[1])
