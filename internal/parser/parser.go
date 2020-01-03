@@ -18,10 +18,10 @@ func Parse(input string, filename string) (count int, e error) {
 		}
 		if t.Type == lexer.TOKEN_EOL {
 			a = make([]lexer.LexToken, MAX_ITEMS)
-			fmt.Println("\n")
+			fmt.Println("\n") ///////////////////////////////// DEBUG
 		} else if t.Type != lexer.TOKEN_EOF {
 			a = append(a, t)
-			fmt.Println(a[len(a)-1])
+			fmt.Println(a[len(a)-1]) ////////////////////////// DEBUG
 			count++
 			if len(a) == MAX_ITEMS {
 				l.Error = errors.New("Line too long.")
