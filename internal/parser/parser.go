@@ -6,8 +6,6 @@ import (
 	"fmt"
 )
 
-const MAX_ITEMS = 50
-
 
 func process_line(a []lexer.LexToken) { //Left to do: Polish notation refactoring, array of tokens
 	fmt.Println(a)
@@ -16,7 +14,7 @@ func process_line(a []lexer.LexToken) { //Left to do: Polish notation refactorin
 
 func Parse(input string, filename string) (count int, e error) {
 	l := lexer.BeginLexing(input, filename)
-	a := make([]lexer.LexToken, 0, 50)
+	a := make([]lexer.LexToken, 0)
 	for t := range l.Tokens {
 		if l.Error != nil {
 			break
@@ -25,14 +23,10 @@ func Parse(input string, filename string) (count int, e error) {
 			if len(a) > 0 {
 				process_line(a)
 			}
-			a = make([]lexer.LexToken, 0, MAX_ITEMS)
+			a = make([]lexer.LexToken, 0)
 		} else if t.Type != lexer.TOKEN_EOF {
 			a = append(a, t)
 			count++
-			if len(a) == MAX_ITEMS {
-				l.Error = errors.New("Line too long.")
-				break
-			}
 		} else {
 			l.Error = errors.New("Unexpected error.")
 			break
