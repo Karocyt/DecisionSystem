@@ -20,6 +20,8 @@ type Facts struct {
 
 func build_tree(a []lexer.LexToken) (tree Node) {
 	fmt.Println("Building Tree")
+
+	return tree
 }
 
 func process_line(a []lexer.LexToken) { //Left to do: build tree and hashtable
@@ -34,9 +36,9 @@ func process_line(a []lexer.LexToken) { //Left to do: build tree and hashtable
 				index = i
 			}
 		}
-		left = a[0 : index]
-		right = a[index : len(a) - 1]
-		tree = build_tree(left)
+		left := a[0 : index]
+		right := a[index : len(a) - 1]
+		tree := build_tree(left)
 	}
 
 
