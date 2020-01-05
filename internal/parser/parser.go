@@ -6,8 +6,40 @@ import (
 	"fmt"
 )
 
+type Node struct {
+	token 	lexer.LexToken
+	state	bool
+	left  	lexer.LexToken
+	right	lexer.LexToken
+}
 
-func process_line(a []lexer.LexToken) { //Left to do: Polish notation refactoring, array of tokens
+type Facts struct {
+	table 	map[string]Node
+	queries	[]Node
+}
+
+func build_tree(a []lexer.LexToken) (tree Node) {
+	fmt.Println("Building Tree")
+}
+
+func process_line(a []lexer.LexToken) { //Left to do: build tree and hashtable
+	if a[0].Type == lexer.TOKEN_EQUALS {
+		fmt.Println("Process Facts")
+	} else if a[0].Type == lexer.TOKEN_QUERY {
+		fmt.Println("Process Queries")
+	} else {
+		index := 0
+		for i, t := range a {
+			if t.Type == lexer.TOKEN_IF_ONLY_IF || t.Type == lexer.TOKEN_IMPLIES {
+				index = i
+			}
+		}
+		left = a[0 : index]
+		right = a[index : len(a) - 1]
+		tree = build_tree(left)
+	}
+
+
 	fmt.Println(a)
 	fmt.Println("\n")
 }
