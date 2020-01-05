@@ -55,7 +55,7 @@ func (this *Lexer) Emit(tokenType TokenType) {
 		println("\tEmit")
 	}
 	t := LexToken{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
-	fmt.Printf("\t\tToken %d: %s\n", t.Type, t.Value)
+	//fmt.Printf("\t\tToken %d: %s\n", t.Type, t.Value)
 	this.Tokens <- t
 	this.Start = this.Pos
 }

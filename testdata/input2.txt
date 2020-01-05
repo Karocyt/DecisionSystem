@@ -1,5 +1,5 @@
 Flaques => Eau # 3
-Pluie => Nuages & Flaques # 2
+Pluie => Nuages + Flaques # 2
 Parapluie <=> Pluie # 1
 
 = Parapluie
