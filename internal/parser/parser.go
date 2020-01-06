@@ -18,17 +18,27 @@ type Facts struct {
 	queries	[]Node
 }
 
-func build_tree(a []lexer.LexToken) (tree Node) {
-	fmt.Println("Building Tree")
+// func find_operator(a []lexer.lextoken, match string) (i int) {
+// 	for i, t := range a {
+// 		if t.Value == match {
+// 			return
+// 		}
+// 	}
+// 	i = -1
+// 	return
+// }
 
+func build_tree(a []lexer.LexToken) (tree Node) {
+	fmt.Println("Building Tree", a)
+	fmt.Println("Operator: ", a[find_operator(a)])
 	return tree
 }
 
 func process_line(a []lexer.LexToken) { //Left to do: build tree and hashtable
 	if a[0].Type == lexer.TOKEN_EQUALS {
-		fmt.Println("Process Facts")
+		fmt.Println("Process Facts", a)
 	} else if a[0].Type == lexer.TOKEN_QUERY {
-		fmt.Println("Process Queries")
+		fmt.Println("Process Queries", a)
 	} else {
 		index := 0
 		for i, t := range a {
@@ -37,12 +47,13 @@ func process_line(a []lexer.LexToken) { //Left to do: build tree and hashtable
 			}
 		}
 		left := a[0 : index]
-		right := a[index : len(a) - 1]
+		right := a[index + 1 : len(a)]
+		operator := a[index]
 		tree := build_tree(left)
+		fmt.Println(left, right, operator, tree)
 	}
 
 
-	fmt.Println(a)
 	fmt.Println("\n")
 }
 
@@ -65,6 +76,9 @@ func Parse(input string, filename string) (count int, e error) {
 			l.Error = errors.New("Unexpected error.")
 			break
 		}
+	}
+	if len(a) > 0 {
+		process_line(a)
 	}
 	e = l.Error
 	return
