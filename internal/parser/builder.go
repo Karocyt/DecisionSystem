@@ -27,8 +27,8 @@ func create_node(left []string, right []string) {
 	fmt.Println("create_node\n")
 }
 
-func prec_dict() func(string) int {
-	p := map[string]int{
+func map_precedence() map[string]int {
+	return map[string]int{
 		IF_ONLY_IF:1,
 		IMPLIES:2,
 		XOR:3,
@@ -37,18 +37,15 @@ func prec_dict() func(string) int {
 		NOT:6,
 		LEFT_BRACKET:7,
 	}
-	return func(key string) int {
-		return p[key]
-	}
 }
 
 func find_operator(a []string) (i int) {
-	precedence := prec_dict()
+	//precedence := prec_dict()
 
 	best := -1
-	match := 0
+	match := -1
 	for i, s := range a {
-		p := precedence(s)
+		p := map_precedence()[s]
 		if p > best {
 			best = p
 			match = i
@@ -58,17 +55,11 @@ func find_operator(a []string) (i int) {
 }
 
 func (b *Builder) build_tree(a []string) (tree Node) {
-	index := 0
-	for i, t := range a {
-		if t == IF_ONLY_IF || t == IMPLIES {
-			index = i
-		}
-	}
+	index := find_operator(a)
 	left := a[0 : index]
 	right := a[index + 1 : len(a)]
 	operator := a[index]
-	fmt.Println(left, right, operator, tree)
-	fmt.Println("\n")
+	fmt.Println("build_tree:\n-left:\t\t", left, "\n-right:\t\t", right, "\n-operator:\t",  operator)
 	return tree
 }
 
@@ -94,8 +85,9 @@ func (b *Builder) process_rule(a []string) {
 	rule := a[0 : index]
 	result := a[index + 1 : len(a)]
 	relation := a[index]
+	fmt.Println("line:\t\t", rule, relation, result)
 	tree := b.build_tree(rule)
-	fmt.Println("line:\t\t", rule, relation, result, "\nrule tree:\t", tree)
+	fmt.Println("rule tree:\t", tree, "\n")
 }
 
 func (b *Builder) process_line(a []string) { //Left to do: build tree and hashtable
