@@ -59,3 +59,10 @@ type Parenthesis struct {
 func (op Parenthesis) Eval(key string) (bool, error) {
 	return op.Op.Eval(key)
 }
+
+type Default struct {  
+}
+
+func (op Default) Eval(key string) (bool, error) {
+	return false, nil
+}

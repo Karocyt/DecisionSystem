@@ -1,7 +1,7 @@
 Flaques => Eau # 3
 Pluie => Flaques # 2
-Parapluie => Pluie # 1
+Nuages + Parapluie => Pluie # 1
 
-= Parapluie
+= ParapluieNuages
 
 ? Eau

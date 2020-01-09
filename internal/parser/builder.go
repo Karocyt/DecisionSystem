@@ -57,13 +57,22 @@ func find_operator(a []string) (i int) {
 	return match
 }
 
-func build_tree(a []string) (tree Node) {
-	fmt.Println("Building Tree", a)
-	fmt.Println("Operator: ", a[find_operator(a)])
+func (b *Builder) build_tree(a []string) (tree Node) {
+	index := 0
+	for i, t := range a {
+		if t == IF_ONLY_IF || t == IMPLIES {
+			index = i
+		}
+	}
+	left := a[0 : index]
+	right := a[index + 1 : len(a)]
+	operator := a[index]
+	fmt.Println(left, right, operator, tree)
+	fmt.Println("\n")
 	return tree
 }
 
-func (b *Builder) process_queries(a []string) {
+func (b *Builder) process_query(a []string) {
 	for _, s := range a[1 : len(a)] {
 		b.Queries = append(b.Queries, s)
 	}
@@ -82,19 +91,18 @@ func (b *Builder) process_rule(a []string) {
 			index = i
 		}
 	}
-	left := a[0 : index]
-	right := a[index + 1 : len(a)]
-	operator := a[index]
-	tree := build_tree(left)
-	fmt.Println(left, right, operator, tree)
-	fmt.Println("\n")
+	rule := a[0 : index]
+	result := a[index + 1 : len(a)]
+	relation := a[index]
+	tree := b.build_tree(rule)
+	fmt.Println("line:\t\t", rule, relation, result, "\nrule tree:\t", tree)
 }
 
 func (b *Builder) process_line(a []string) { //Left to do: build tree and hashtable
 	if a[0] == EQUALS {
 		b.process_facts(a)
 	} else if a[0] == QUERY {
-		b.process_queries(a)
+		b.process_query(a)
 	} else {
 		b.process_rule(a)	
 	}
@@ -104,7 +112,7 @@ func (b *Builder) process_line(a []string) { //Left to do: build tree and hashta
 // IOF == multiple rules AND
 func (b *Builder) build(tokens chan string) (e error) {
 	b.Rules = make(map[string]Node)
-	b.Queries	= make([]string, 0)
+	//b.Queries = make([]string, 0)
 
 	a := make([]string, 0)
 	i := 0

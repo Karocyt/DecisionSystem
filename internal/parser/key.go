@@ -25,15 +25,6 @@ func (k Key) Eval(key string) (bool, error) {
 	return k.Value, nil
 }
 
-func (key Key) Init(val bool) (e error) {
-	key.Value = true
-	if key.State == KEY_DEFAULT {
-		key.State = KEY_GIVEN
-	} else {
-		e = errors.New(fmt.Sprintf("Warning: %s defined true multiple times.\n", key.Name))
-	}
-	return
-}
 func (key Key) Set(val bool) (e error) {
 	if key.State == KEY_DEFAULT {
 		key.State = KEY_CALCULATED
