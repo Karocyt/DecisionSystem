@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Karocyt/expertsystem/internal/lexer"
-	"github.com/Karocyt/expertsystem/internal/parser"
+	"github.com/Karocyt/expertsystem/internal/solver"
 	"io/ioutil"
 	"os"
 )
@@ -24,10 +24,9 @@ func getInput() (string, error) {
 	return s, nil
 }
 
-func print_result(b *parser.Builder) {
-	// fmt.Println("\tResults:")
-	// defer fmt.Println("\tEnd Results")
-	//var empty parser.Node
+func print_result(b *solver.Builder) {
+	fmt.Println("Results: {")
+	defer fmt.Println("}")
 	for _, s := range b.Queries {
 		val, e := b.Eval_rules(s)
 		if e != nil {
@@ -49,12 +48,12 @@ func main() {
 		fmt.Println(e)
 		return
 	}
-	b, e := parser.New(l.Tokens)
+	s, e := solver.New(l.Tokens)
 	if e != nil {
 		fmt.Println(e)
 		return
 	}
-	fmt.Println("\nQueries:\t", b.Queries, "\nVariables:\t", b.Variables)
-	print_result(&b)
+	fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
+	print_result(&s)
 	return
 }
