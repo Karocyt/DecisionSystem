@@ -56,6 +56,30 @@ func find_operator(a []string) (i int) {
 	return match
 }
 
+func (b *Builder) Eval_rules(s string) (value bool, e error) {
+	// fmt.Println("\tEval_rules")
+	// defer fmt.Println("\tEnd Eval rules")
+	k, ok := b.Variables[s]
+	if !ok {
+		b.Variables[s] = &Key{}
+		k = b.Variables[s]
+		k.Name = s
+	}
+	old_val := k.Value
+	old_state := k.State
+	for _, rule := range k.rules {
+		//fmt.Println("rule ", i, ": ", rule)
+		e = rule.Apply(b)
+		if e != nil {
+			return k.Value, e
+		}
+	}
+	if old_state != KEY_DEFAULT && k.Value != old_val {
+		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
+	}
+	return k.Value, e
+}
+
 func (b *Builder) append_implies(rule Defines) (e error) {
 	// Left to do operator in right operand
 	// Can check here for self-definition
@@ -107,30 +131,6 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 		return &op
 	}
 	return nil
-}
-
-func (b *Builder) Eval_rules(s string) (value bool, e error) {
-	// fmt.Println("\tEval_rules")
-	// defer fmt.Println("\tEnd Eval rules")
-	k, ok := b.Variables[s]
-	if !ok {
-		b.Variables[s] = &Key{}
-		k = b.Variables[s]
-		k.Name = s
-	}
-	old_val := k.Value
-	old_state := k.State
-	for _, rule := range k.rules {
-		//fmt.Println("rule ", i, ": ", rule)
-		e = rule.Apply(b)
-		if e != nil {
-			return k.Value, e
-		}
-	}
-	if old_state != KEY_DEFAULT && k.Value != old_val {
-		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
-	}
-	return k.Value, e
 }
 
 func (b *Builder) process_query(a []string) {
