@@ -19,27 +19,11 @@ type Key struct {
 }
 
 func (k *Key) Eval(key string) (mybool bool, e error) {
-	fmt.Println("\tKey Eval", k.Name, key)
-	defer fmt.Println("\tEnd Key Eval", k.Name, key)
-	// if len(k.rules) > 0 {
-	// 	fmt.Println(fmt.Sprintf("rules for %s: ", k.Name), k.rules)
-	// } else {
-	// 	fmt.Println(fmt.Sprintf("No rule for %s.", k.Name))
-	// }
+	// fmt.Println("\tKey Eval", k.Name, key)
+	// defer fmt.Println("\tEnd Key Eval", k.Name, key)
 	if k.Name == key {
 		return k.Value, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", key))
 	}
-	// val := k.Value
-	// for i, rule := range k.rules {
-	// 	fmt.Println("rule ", i, ": ", rule)
-	// 	e = rule.Apply()
-	// 	if e != nil {
-	// 		return k.Value, e
-	// 	}
-	// }
-	// if k.State != KEY_DEFAULT && val != k.Value {
-	// 	e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
-	// }
 	return k.Value, e
 }
 

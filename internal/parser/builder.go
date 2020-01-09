@@ -20,7 +20,7 @@ const (
 
 type Builder struct {
 	Variables map[string]*Key
-	Rules map[string]Node
+	//Rules map[string]Node
 	Queries	[]string
 }
 
@@ -95,7 +95,7 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	left := a[0 : index]
 	right := a[index + 1 : len(a)]
 	operator := a[index]
-	fmt.Println("build_tree:\n-left:\t\t", left, "\n-right:\t\t", right, "\n-operator:\t",  operator)
+	//fmt.Println("build_tree:\n-left:\t\t", left, "\n-right:\t\t", right, "\n-operator:\t",  operator)
 
 	switch operator {
 	case AND:
@@ -119,21 +119,12 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 		op.Op = b.build_tree(a[1 : len(a) - 1])
 		return &op
 	}
-	// case IMPLIES:
-	// 	var op Implies
-	// 	op.Left, op.Right = b.build_tree(left), right
-	// 	return op
-	// case IF_ONLY_IF:
-	// 	var op If_Only_If
-	// 	op.Left, op.Right = b.build_tree(left), right
-	// 	return op
-
 	return nil
 }
 
 func (b *Builder) Eval_rules(s string) (value bool, e error) {
-	fmt.Println("\tEval_rules")
-	defer fmt.Println("\tEnd Eval rules")
+	// fmt.Println("\tEval_rules")
+	// defer fmt.Println("\tEnd Eval rules")
 	k, ok := b.Variables[s]
 	if !ok {
 		b.Variables[s] = &Key{}
@@ -142,8 +133,8 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 	}
 	old_val := k.Value
 	old_state := k.State
-	for i, rule := range k.rules {
-		fmt.Println("rule ", i, ": ", rule)
+	for _, rule := range k.rules {
+		//fmt.Println("rule ", i, ": ", rule)
 		e = rule.Apply(b)
 		if e != nil {
 			return k.Value, e
@@ -173,8 +164,8 @@ func (b *Builder) process_facts(a []string) {
 }
 
 func (b *Builder) process_rule(a []string) (e error) {
-	fmt.Println("\tProcess_rule", a)
-	defer fmt.Println("\tEnd process rule", a)
+	// fmt.Println("\tProcess_rule", a)
+	// defer fmt.Println("\tEnd process rule", a)
 	index := 0
 	for i, t := range a {
 		if t == IF_ONLY_IF || t == IMPLIES {
@@ -183,11 +174,9 @@ func (b *Builder) process_rule(a []string) (e error) {
 	}
 	rule := a[0 : index]
 	result := a[index + 1 : len(a)]
-	//relation := a[index] // will be needed for IOF
-	//fmt.Println("line:\t\t", rule, relation, result)
 	tree := b.build_tree(rule)
 	e = b.append_implies(Defines{tree, a[index], result})
-	fmt.Println("rule tree:\t", tree, "\n")
+	//fmt.Println("rule tree:\t", tree, "\n")
 	return e
 }
 
@@ -205,9 +194,8 @@ func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree 
 // IMPLIES == multiples rules OR
 // IOF == multiple rules AND
 func (b *Builder) build(tokens chan string) (e error) {
-	b.Rules = make(map[string]Node)
+	//b.Rules = make(map[string]Node)
 	b.Variables = make(map[string]*Key)
-	//b.Queries = make([]string, 0)
 
 	a := make([]string, 0)
 	i := 0
@@ -225,9 +213,6 @@ func (b *Builder) build(tokens chan string) (e error) {
 		}
 		i++
 	}
-	// if e != nil && len(a) > 0 {
-	// 	b.process_line(a)
-	// }
 	return
 }
 

@@ -54,7 +54,7 @@ func main() {
 		fmt.Println(e)
 		return
 	}
-	fmt.Println("Nodes:\t\t", b.Rules, "\nQueries:\t", b.Queries, "\nVariables:\t", b.Variables)
+	fmt.Println("\nQueries:\t", b.Queries, "\nVariables:\t", b.Variables)
 	print_result(&b)
 	return
 }
