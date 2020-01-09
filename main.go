@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/Karocyt/expertsystem/internal/lexer"
 	"github.com/Karocyt/expertsystem/internal/parser"
 	"io/ioutil"
 	"os"
@@ -24,16 +25,21 @@ func getInput() (string, error) {
 }
 
 func main() {
-	input, e := getInput()
+	content, e := getInput()
 	if e != nil {
 		fmt.Println(e)
 		return
 	}
-	nodes, e := parser.New(input, os.Args[1])
+	l, e := lexer.New(content, os.Args[1])
 	if e != nil {
 		fmt.Println(e)
 		return
 	}
-	fmt.Println(nodes)
+	b, e := parser.New(l.Tokens)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	fmt.Println("Nodes:\t\t", b.Rules, "\nQueries:\t", b.Queries)
 	return
 }

@@ -17,8 +17,12 @@ type Key struct {
 	State 	int
 }
 
-func (key Key) Eval() bool {
-	return key.Value
+func (k Key) Eval(key string) (bool, error) {
+	if k.Name == key {
+		e := errors.New(fmt.Sprintf("Error: %s is self-referring.\n", key))
+		return k.Value, e
+	}
+	return k.Value, nil
 }
 
 func (key Key) Init(val bool) (e error) {

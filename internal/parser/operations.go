@@ -1,45 +1,61 @@
 package parser
 
 type Node interface{  
-    Eval() bool
+    Eval(key string) (bool, error)
 }
 
 type And struct {  
     Left, Right Node
 }
 
-func (op And) Eval() bool {
-	return op.Left.Eval() && op.Right.Eval()
+func (op And) Eval(key string) (bool, error) {
+	val1, e := op.Left.Eval(key)
+	if e != nil {
+		return false, e
+	}
+	val2, e := op.Right.Eval(key)
+	return val1 && val2, e
 } 
 
 type Or struct {  
     Left, Right Node
 }
 
-func (op Or) Eval() bool {
-	return op.Left.Eval() || op.Right.Eval()
+func (op Or) Eval(key string) (bool, error) {
+	val1, e := op.Left.Eval(key)
+	if e != nil {
+		return false, e
+	}
+	val2, e := op.Right.Eval(key)
+	return val1 || val2, e
 }
 
 type Xor struct {  
     Left, Right Node
 }
 
-func (op Xor) Eval() bool {
-	return op.Left.Eval() != op.Right.Eval()
+func (op Xor) Eval(key string) (bool, error) {
+	val1, e := op.Left.Eval(key)
+	if e != nil {
+		return false, e
+	}
+	val2, e := op.Right.Eval(key)
+	return val1 != val2, e
 }
 
 type Not struct {  
     Left Node
 }
 
-func (op Not) Eval() bool {
-	return !op.Left.Eval()
+func (op Not) Eval(key string) (bool, error) {
+	val, e := op.Left.Eval(key)
+	return !val, e
 }
 
 type Parenthesis struct {  
     Op Node
 }
 
-func (op Parenthesis) Eval() bool {
-	return op.Op.Eval()
+func (op Parenthesis) Eval(key string) (bool, error) {
+	return op.Op.Eval(key)
 }

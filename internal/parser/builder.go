@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"github.com/Karocyt/expertsystem/internal/lexer"
 	//"errors"
 	"fmt"
 )
@@ -20,8 +19,8 @@ const (
 )
 
 type Builder struct {
-	register map[string]Node
-	queries	[]string
+	Rules map[string]Node
+	Queries	[]string
 }
 
 func create_node(left []string, right []string) {
@@ -64,39 +63,55 @@ func build_tree(a []string) (tree Node) {
 	return tree
 }
 
-func process_line(a []string) { //Left to do: build tree and hashtable
-	if a[0] == EQUALS {
-		fmt.Println("Process Facts", a)
-	} else if a[0] == QUERY {
-		fmt.Println("Process Queries", a)
-	} else {
-		index := 0
-		for i, t := range a {
-			if t == IF_ONLY_IF || t == IMPLIES {
-				index = i
-			}
-		}
-		left := a[0 : index]
-		right := a[index + 1 : len(a)]
-		operator := a[index]
-		tree := build_tree(left)
-		fmt.Println(left, right, operator, tree)
+func (b *Builder) process_queries(a []string) {
+	for _, s := range a[1 : len(a)] {
+		b.Queries = append(b.Queries, s)
 	}
+}
 
+func (b *Builder) process_facts(a []string) {
+	for _, s := range a[1 : len(a)] {
+		b.Rules[s] = Key{s, true, KEY_GIVEN}
+	}
+}
 
+func (b *Builder) process_rule(a []string) {
+	index := 0
+	for i, t := range a {
+		if t == IF_ONLY_IF || t == IMPLIES {
+			index = i
+		}
+	}
+	left := a[0 : index]
+	right := a[index + 1 : len(a)]
+	operator := a[index]
+	tree := build_tree(left)
+	fmt.Println(left, right, operator, tree)
 	fmt.Println("\n")
 }
 
-func (b Builder) init(l *lexer.Lexer) (e error) {
-	b.register = make(map[string]Node)
-	b.queries	= make([]string, 0)
+func (b *Builder) process_line(a []string) { //Left to do: build tree and hashtable
+	if a[0] == EQUALS {
+		b.process_facts(a)
+	} else if a[0] == QUERY {
+		b.process_queries(a)
+	} else {
+		b.process_rule(a)	
+	}
+}
+
+// IMPLIES == multiples rules OR
+// IOF == multiple rules AND
+func (b *Builder) build(tokens chan string) (e error) {
+	b.Rules = make(map[string]Node)
+	b.Queries	= make([]string, 0)
 
 	a := make([]string, 0)
 	i := 0
-	for t := range l.Tokens {
+	for t := range tokens {
 		if t == "\n" {
 			if len(a) > 0 {
-				process_line(a)
+				b.process_line(a)
 			}
 			a = make([]string, 0)
 		} else {
@@ -105,18 +120,17 @@ func (b Builder) init(l *lexer.Lexer) (e error) {
 		i++
 	}
 	if len(a) > 0 {
-		process_line(a)
+		b.process_line(a)
 	}
 	return
 }
 
-func New(input string, filename string) (b Builder, e error) {
-	l, e := lexer.BeginLexing(input, filename)
+func New(input chan string) (b Builder, e error) {
 	if e != nil {
 		return
 	}
 	b = Builder{}
-	e = b.init(l)
+	e = b.build(input)
 	return
 }
 
