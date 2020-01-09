@@ -74,7 +74,7 @@ func (b *Builder) append_implies(rule Defines) (e error) {
 	// Can check here for self-definition
 	for i, _ := range rule.Right {
 		node := b.build_tree(rule.Right[i : i + 1])
-		key, ok := node.(Key)
+		key, ok := (*node).(Key)
 		if ok {
 			key := b.Variables[key.Name]
 			key.rules = append(key.rules, rule)
@@ -84,12 +84,12 @@ func (b *Builder) append_implies(rule Defines) (e error) {
 	return
 }
 
-func (b *Builder) build_tree(a []string) (tree Node) {
+func (b *Builder) build_tree(a []string) (tree *Node) {
 	if len(a) == 1 {
 		k := b.Variables[a[0]]
 		k.Name = a[0]
 		b.Variables[a[0]] = k
-		return b.Variables[a[0]]
+		return &k
 	}
 	index := find_operator(a)
 	left := a[0 : index]
@@ -101,23 +101,19 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	case AND:
 		var op And
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
-		return op
 	case OR:
 		var op Or
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
-		return op
 	case XOR:
 		var op Xor
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
-		return op
 	case NOT:
 		var op Not
 		op.Right = b.build_tree(right)
-		return op
 	case LEFT_BRACKET:
-		op := b.build_tree(a[1 : len(a) - 1])
-		return op
+		op = b.build_tree(a[1 : len(a) - 1])
 	}
+	return &op
 	// case IMPLIES:
 	// 	var op Implies
 	// 	op.Left, op.Right = b.build_tree(left), right
@@ -127,23 +123,28 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	// 	op.Left, op.Right = b.build_tree(left), right
 	// 	return op
 
-	return nil
+	//return nil
 }
 
-func (b *Builder) eval_rules(k Key) (e error) {
+func (b *Builder) Eval_rules(s string) (value bool, e error) {
+	fmt.Println("\tEval_rules")
+	defer fmt.Println("\tEnd Eval rules")
+	k := b.Variables[s]
+	k.Name = s
 	old_val := k.Value
 	old_state := k.State
 	for i, rule := range k.rules {
 		fmt.Println("rule ", i, ": ", rule)
 		e = rule.Apply(b)
 		if e != nil {
-			return e
+			return k.Value, e
 		}
 	}
 	if old_state != KEY_DEFAULT && k.Value != old_val {
 		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
 	}
-	return e
+	b.Variables[s] = k
+	return k.Value, e
 }
 
 func (b *Builder) process_query(a []string) {
@@ -159,6 +160,8 @@ func (b *Builder) process_facts(a []string) {
 }
 
 func (b *Builder) process_rule(a []string) (e error) {
+	fmt.Println("\tProcess_rule", a)
+	defer fmt.Println("\tEnd process rule", a)
 	index := 0
 	for i, t := range a {
 		if t == IF_ONLY_IF || t == IMPLIES {

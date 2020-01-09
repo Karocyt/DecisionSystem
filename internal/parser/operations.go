@@ -9,7 +9,7 @@ type Node interface{
 }
 
 type And struct {  
-    Left, Right Node
+    Left, Right *Node
 }
 
 func (op And) Eval(key string) (bool, error) {
@@ -26,7 +26,7 @@ func (op And) String() string {
 }
 
 type Or struct {  
-    Left, Right Node
+    Left, Right *Node
 }
 
 func (op Or) Eval(key string) (bool, error) {
@@ -43,7 +43,7 @@ func (op Or) String() string {
 }
 
 type Xor struct {  
-    Left, Right Node
+    Left, Right *Node
 }
 
 func (op Xor) Eval(key string) (bool, error) {
@@ -60,7 +60,7 @@ func (op Xor) String() string {
 }
 
 type Not struct {  
-    Right Node
+    Right *Node
 }
 
 func (op Not) Eval(key string) (bool, error) {
@@ -73,7 +73,7 @@ func (op Not) String() string {
 }
 
 type Parenthesis struct {  
-    Op Node
+    Op *Node
 }
 
 func (op Parenthesis) Eval(key string) (bool, error) {
@@ -85,12 +85,13 @@ func (op Parenthesis) String() string {
 }
 
 type Defines struct {  
-    Left Node
+    Left *Node
     operator string
     Right []string
 }
 
 func (op Defines) Apply(b *Builder) (e error) {
+	fmt.Println("\tApply")
 	if len(op.Right) == 1 {
 		_, e := op.Left.Eval(op.Right[0])
 		if e != nil {
