@@ -33,3 +33,7 @@ type LexToken struct {
 	Type  TokenType
 	Value string
 }
+
+func (t LexToken) String() string {
+        return t.Value
+}

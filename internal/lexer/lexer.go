@@ -9,25 +9,26 @@ import (
 )
 
 type Lexer struct {
-	Name          string
-	Line          int
-	PosToLine     int
-	Input         string
-	Tokens        chan LexToken
-	State         LexFn
-	BracketsCount int
-	Error         error
-	Facts         bool
-	Query         bool
+	Name          	string
+	Line          	int
+	PosToLine     	int
+	Input         	string
+	Tokens        	chan string
+	State         	LexFn
+	BracketsCount 	int
+	Error         	error
+	Facts         	bool
+	Query         	bool
 
-	Start int
-	Pos   int
+	Start 			int
+	Pos   			int
+	Done 			bool
 }
 
 type LexingError struct {
-	Lexer    *Lexer
-	Got      string
-	Expected string
+	Lexer    		*Lexer
+	Got      		string
+	Expected 		string
 }
 
 var boldBlack *color.Color = color.New(color.Bold, color.FgBlack)
@@ -56,7 +57,7 @@ func (this *Lexer) Emit(tokenType TokenType) {
 	}
 	t := LexToken{Type: tokenType, Value: this.Input[this.Start:this.Pos]}
 	//fmt.Printf("\t\tToken %d: %s\n", t.Type, t.Value)
-	this.Tokens <- t
+	this.Tokens <- t.Value
 	this.Start = this.Pos
 }
 
@@ -148,16 +149,16 @@ BUFF_SIZE should be > 1 to be buffered and initializable at init stage
 For memory footprint considerations, BUFF_SIZE should be kept as small as possible.
 Hence 2 is the king choice and can be hardcoded.
 */
-func BeginLexing(input string, name string) *Lexer {
+func New(input string, name string) (*Lexer, error) {
 	l := &Lexer{
 		Name:   name,
 		Input:  input,
-		Tokens: make(chan LexToken, 2),
+		Tokens: make(chan string, 2),
 		Line:   1,
 	}
 	l.State = LexFnSpacesJumpWrapper(l, LexBegin)
 	go l.run()
-	return l
+	return l, l.Error
 }
 
 /*

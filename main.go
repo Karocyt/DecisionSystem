@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/Karocyt/expertsystem/internal/lexer"
 	"github.com/Karocyt/expertsystem/internal/parser"
 	"io/ioutil"
 	"os"
@@ -23,18 +24,37 @@ func getInput() (string, error) {
 	return s, nil
 }
 
+func print_result(b *parser.Builder) {
+	// fmt.Println("\tResults:")
+	// defer fmt.Println("\tEnd Results")
+	//var empty parser.Node
+	for _, s := range b.Queries {
+		val, e := b.Eval_rules(s)
+		if e != nil {
+			fmt.Println(e)
+		} else {
+			fmt.Printf("%s = %t\n", s, val)
+		}
+	}
+}
+
 func main() {
-	input, e := getInput()
+	content, e := getInput()
 	if e != nil {
 		fmt.Println(e)
 		return
 	}
-	count := 1
-	if e == nil {
-		count, e = parser.Parse(input, os.Args[1])
-		if count > 0 && e != nil {
-			fmt.Println(e)
-		}
+	l, e := lexer.New(content, os.Args[1])
+	if e != nil {
+		fmt.Println(e)
+		return
 	}
+	b, e := parser.New(l.Tokens)
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	fmt.Println("\nQueries:\t", b.Queries, "\nVariables:\t", b.Variables)
+	print_result(&b)
 	return
 }
