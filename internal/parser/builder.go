@@ -74,7 +74,7 @@ func (b *Builder) append_implies(rule Defines) (e error) {
 	// Can check here for self-definition
 	for i, _ := range rule.Right {
 		node := b.build_tree(rule.Right[i : i + 1])
-		key, ok := (*node).(Key)
+		key, ok := node.(Key)
 		if ok {
 			key := b.Variables[key.Name]
 			key.rules = append(key.rules, rule)
@@ -84,12 +84,12 @@ func (b *Builder) append_implies(rule Defines) (e error) {
 	return
 }
 
-func (b *Builder) build_tree(a []string) (tree *Node) {
+func (b *Builder) build_tree(a []string) (tree Node) {
 	if len(a) == 1 {
 		k := b.Variables[a[0]]
 		k.Name = a[0]
 		b.Variables[a[0]] = k
-		return &k
+		return b.Variables[a[0]]
 	}
 	index := find_operator(a)
 	left := a[0 : index]
@@ -101,19 +101,23 @@ func (b *Builder) build_tree(a []string) (tree *Node) {
 	case AND:
 		var op And
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
+		return op
 	case OR:
 		var op Or
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
+		return op
 	case XOR:
 		var op Xor
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
+		return op
 	case NOT:
 		var op Not
 		op.Right = b.build_tree(right)
+		return op
 	case LEFT_BRACKET:
-		op = b.build_tree(a[1 : len(a) - 1])
+		op := b.build_tree(a[1 : len(a) - 1])
+		return op
 	}
-	return &op
 	// case IMPLIES:
 	// 	var op Implies
 	// 	op.Left, op.Right = b.build_tree(left), right
@@ -123,7 +127,7 @@ func (b *Builder) build_tree(a []string) (tree *Node) {
 	// 	op.Left, op.Right = b.build_tree(left), right
 	// 	return op
 
-	//return nil
+	return nil
 }
 
 func (b *Builder) Eval_rules(s string) (value bool, e error) {
