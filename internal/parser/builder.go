@@ -77,6 +77,9 @@ func (b *Builder) append_implies(rule Node, str []string) {
 
 func (b *Builder) build_tree(a []string) (tree Node) {
 	if len(a) == 1 {
+		k := b.Variables[a[0]]
+		k.Name = a[0]
+		b.Variables[a[0]] = k
 		return b.Variables[a[0]]
 	}
 	index := find_operator(a)
@@ -118,7 +121,7 @@ func (b *Builder) process_query(a []string) {
 
 func (b *Builder) process_facts(a []string) {
 	for _, s := range a[1 : len(a)] {
-		b.Rules[s] = Key{Name:s, Value:true, State:KEY_GIVEN}
+		b.Variables[s] = Key{Name:s, Value:true, State:KEY_GIVEN}
 	}
 }
 

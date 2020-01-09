@@ -97,7 +97,10 @@ func (op Implies) Eval(key string) (bool, error) {
 	//if val1 {
 
 	//}
-	val, e := op.Right.Eval("")
+	val, e := op.Left.Eval("")
+	if val {
+		apply(op.Right)
+	}
 	return val, e
 }
 

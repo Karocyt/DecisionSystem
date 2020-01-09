@@ -50,6 +50,6 @@ func (key Key) Set(val bool) (e error) {
 
 func (key Key) String() string {
 	val, _ := key.Eval(key.Name) 
-	return fmt.Sprintf("%s(%t)", key.Name, val)
+	return fmt.Sprintf("{%s:%t}", key.Name, val)
 }
 
