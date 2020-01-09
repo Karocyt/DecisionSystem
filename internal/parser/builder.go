@@ -5,19 +5,6 @@ import (
 	"fmt"
 )
 
-const (
-	LEFT_BRACKET  	string = "("
-	RIGHT_BRACKET 	string = ")"
-	IMPLIES       	string = "=>"
-	IF_ONLY_IF    	string = "<=>"
-	EQUALS        	string = "="
-	QUERY         	string = "?"
-	NOT         	string = "!"
-	AND 			string = "+"
-	OR 				string = "|"
-	XOR 			string = "^"
-)
-
 type Builder struct {
 	Variables map[string]*Key
 	//Rules map[string]Node
@@ -201,7 +188,7 @@ func (b *Builder) build(tokens chan string) (e error) {
 	i := 0
 	for t := range tokens {
 		if e != nil {
-			break
+			return e
 		}
 		if t == "\n" {
 			if len(a) > 0 {

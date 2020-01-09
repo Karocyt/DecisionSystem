@@ -25,9 +25,8 @@ func getInput() (string, error) {
 }
 
 func print_result(b *parser.Builder) {
-	// fmt.Println("\tResults:")
-	// defer fmt.Println("\tEnd Results")
-	//var empty parser.Node
+	fmt.Println("Results: {")
+	defer fmt.Println("}")
 	for _, s := range b.Queries {
 		val, e := b.Eval_rules(s)
 		if e != nil {
