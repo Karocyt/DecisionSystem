@@ -1,7 +1,7 @@
 package parser
 
 import (
-	//"errors"
+	"errors"
 	"fmt"
 )
 
@@ -69,10 +69,19 @@ func find_operator(a []string) (i int) {
 	return match
 }
 
-func (b *Builder) append_implies(rule Node, str []string) {
-	key := b.Variables[str[0]]
-	key.rules = append(key.rules, rule)
-	b.Variables[str[0]] = key
+func (b *Builder) append_implies(rule Defines) (e error) {
+	// Left to do operator in right operand
+	// Can check here for self-definition
+	for i, _ := range rule.Right {
+		node := b.build_tree(rule.Right[i : i + 1])
+		key, ok := node.(Key)
+		if ok {
+			key := b.Variables[key.Name]
+			key.rules = append(key.rules, rule)
+			b.Variables[key.Name] = key
+		}
+	}
+	return
 }
 
 func (b *Builder) build_tree(a []string) (tree Node) {
@@ -109,8 +118,32 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 		op := b.build_tree(a[1 : len(a) - 1])
 		return op
 	}
+	// case IMPLIES:
+	// 	var op Implies
+	// 	op.Left, op.Right = b.build_tree(left), right
+	// 	return op
+	// case IF_ONLY_IF:
+	// 	var op If_Only_If
+	// 	op.Left, op.Right = b.build_tree(left), right
+	// 	return op
 
 	return nil
+}
+
+func (b *Builder) eval_rules(k Key) (e error) {
+	old_val := k.Value
+	old_state := k.State
+	for i, rule := range k.rules {
+		fmt.Println("rule ", i, ": ", rule)
+		e = rule.Apply(b)
+		if e != nil {
+			return e
+		}
+	}
+	if old_state != KEY_DEFAULT && k.Value != old_val {
+		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
+	}
+	return e
 }
 
 func (b *Builder) process_query(a []string) {
@@ -125,7 +158,7 @@ func (b *Builder) process_facts(a []string) {
 	}
 }
 
-func (b *Builder) process_rule(a []string) {
+func (b *Builder) process_rule(a []string) (e error) {
 	index := 0
 	for i, t := range a {
 		if t == IF_ONLY_IF || t == IMPLIES {
@@ -137,18 +170,20 @@ func (b *Builder) process_rule(a []string) {
 	//relation := a[index] // will be needed for IOF
 	//fmt.Println("line:\t\t", rule, relation, result)
 	tree := b.build_tree(rule)
-	b.append_implies(tree, result)
+	e = b.append_implies(Defines{tree, a[index], result})
 	fmt.Println("rule tree:\t", tree, "\n")
+	return e
 }
 
-func (b *Builder) process_line(a []string) { //Left to do: build tree and hashtable
+func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree and hashtable
 	if a[0] == EQUALS {
 		b.process_facts(a)
 	} else if a[0] == QUERY {
 		b.process_query(a)
 	} else {
-		b.process_rule(a)	
+		e = b.process_rule(a)	
 	}
+	return
 }
 
 // IMPLIES == multiples rules OR
@@ -161,9 +196,12 @@ func (b *Builder) build(tokens chan string) (e error) {
 	a := make([]string, 0)
 	i := 0
 	for t := range tokens {
+		if e != nil {
+			break
+		}
 		if t == "\n" {
 			if len(a) > 0 {
-				b.process_line(a)
+				e = b.process_line(a)
 			}
 			a = make([]string, 0)
 		} else {
@@ -171,9 +209,9 @@ func (b *Builder) build(tokens chan string) (e error) {
 		}
 		i++
 	}
-	if len(a) > 0 {
-		b.process_line(a)
-	}
+	// if e != nil && len(a) > 0 {
+	// 	b.process_line(a)
+	// }
 	return
 }
 

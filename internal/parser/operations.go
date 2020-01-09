@@ -84,47 +84,49 @@ func (op Parenthesis) String() string {
 	return fmt.Sprintf("%s", op)
 }
 
-type Implies struct {  
-    Left, Right Node
+type Defines struct {  
+    Left Node
+    operator string
+    Right []string
 }
 
-func (op Implies) Eval(key string) (bool, error) {
-	// val1, e := op.Left.Eval(key)
-	// if e != nil {
-	// 	return false, e
-	// }
-	// val2, e := op.Right.Eval(key)
-	//if val1 {
-
-	//}
-	val, e := op.Left.Eval("")
-	if val {
-		apply(op.Right)
+func (op Defines) Apply(b *Builder) (e error) {
+	if len(op.Right) == 1 {
+		_, e := op.Left.Eval(op.Right[0])
+		if e != nil {
+			return e
+		}
+		k := b.Variables[op.Right[0]]
+		k.Name = op.Right[0]
+		e = k.Set(true)
+		if e != nil {
+			return e
+		}
+		b.Variables[op.Right[0]] = k
+	} else if len(op.Right) == 2 && op.Right[0] == NOT {
+		_, e := op.Left.Eval(op.Right[1])
+		if e != nil {
+			return e
+		}
+		k := b.Variables[op.Right[0]]
+		k.Name = op.Right[0]
+		e = k.Set(false)
+		if e != nil {
+			return e
+		}
+		b.Variables[op.Right[0]] = k
 	}
-	return val, e
+	// // Left to do operators in Defines and IOI
+	// index := find_operator(op.Right)
+	// left := op.Right[0 : index]
+	// right := op.Right[index + 1 : len(a)]
+	// operator := a[index]
+	
+	// //for each right, eval left
+	// val, e := op.Left.Eval("")
+	return e
 }
 
-func (op Implies) String() string {
-	return fmt.Sprintf("%s => %s", op.Left, op.Right)
-}
-
-type If_Only_If struct {  
-    Left, Right Node
-}
-
-func (op If_Only_If) Eval(key string) (bool, error) {
-	// val1, e := op.Left.Eval(key)
-	// if e != nil {
-	// 	return false, e
-	// }
-	// val2, e := op.Right.Eval(key)
-	//if val1 {
-
-	//}
-	val, e := op.Right.Eval("")
-	return val, e
-}
-
-func (op If_Only_If) String() string {
-	return fmt.Sprintf("%s <=> %s", op.Left, op.Right)
+func (op Defines) String() string {
+	return fmt.Sprintf("%s %s %s", op.Left, op.operator, op.Right)
 }
