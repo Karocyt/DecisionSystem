@@ -26,17 +26,13 @@ func getInput() (string, error) {
 
 func print_result(b *parser.Builder) {
 	fmt.Printf("Results:\n")
-	var empty parser.Node
+	//var empty parser.Node
 	for _, s := range b.Queries {
-		if b.Rules[s] != empty {
-			res, e := b.Rules[s].Eval(s)
-			if e != nil {
-				fmt.Println(e)
-				return
-			}
-			fmt.Printf("%s = %t\n", s, res)
+		val, e := b.Variables[s].Eval(s)
+		if e != nil {
+			fmt.Println(e)
 		} else {
-			fmt.Printf("%s = %t (Default)\n", s, false)
+			fmt.Printf("%s = %t\n", s, val)
 		}
 	}
 }
@@ -57,7 +53,7 @@ func main() {
 		fmt.Println(e)
 		return
 	}
-	fmt.Println("Nodes:\t\t", b.Rules, "\nQueries:\t", b.Queries)
+	fmt.Println("Nodes:\t\t", b.Rules, "\nQueries:\t", b.Queries, "\nVariables:\t", b.Variables)
 	print_result(&b)
 	return
 }
