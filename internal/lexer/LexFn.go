@@ -283,6 +283,7 @@ func LexError(this *Lexer) LexFn {
 
 func LexEnd(this *Lexer) LexFn {
 	if this.Query && this.Facts {
+		this.Emit(TOKEN_EOL)
 		close(this.Tokens)
 		return nil
 	} else if !this.Facts {

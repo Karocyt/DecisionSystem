@@ -29,12 +29,11 @@ func main() {
 		fmt.Println(e)
 		return
 	}
-	count := 1
-	if e == nil {
-		count, e = parser.Parse(input, os.Args[1])
-		if count > 0 && e != nil {
-			fmt.Println(e)
-		}
+	nodes, e := parser.New(input, os.Args[1])
+	if e != nil {
+		fmt.Println(e)
+		return
 	}
+	fmt.Println(nodes)
 	return
 }
