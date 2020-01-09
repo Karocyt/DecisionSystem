@@ -18,9 +18,9 @@ type Key struct {
 	rules	[]Defines
 }
 
-func (k Key) Eval(key string) (mybool bool, e error) {
-	// fmt.Println("\tKey Eval", k.Name, key)
-	// defer fmt.Println("\tEnd Key Eval", k.Name, key)
+func (k *Key) Eval(key string) (mybool bool, e error) {
+	fmt.Println("\tKey Eval", k.Name, key)
+	defer fmt.Println("\tEnd Key Eval", k.Name, key)
 	// if len(k.rules) > 0 {
 	// 	fmt.Println(fmt.Sprintf("rules for %s: ", k.Name), k.rules)
 	// } else {
@@ -43,7 +43,7 @@ func (k Key) Eval(key string) (mybool bool, e error) {
 	return k.Value, e
 }
 
-func (key Key) Set(val bool) (e error) {
+func (key *Key) Set(val bool) (e error) {
 	// fmt.Println("\tKey Set", key.Name, val)
 	// defer fmt.Println("\tEnd Key Set", key.Name, val)
 	if key.State == KEY_DEFAULT {

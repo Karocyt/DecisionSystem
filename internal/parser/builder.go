@@ -19,7 +19,7 @@ const (
 )
 
 type Builder struct {
-	Variables map[string]Key
+	Variables map[string]*Key
 	Rules map[string]Node
 	Queries	[]string
 }
@@ -74,11 +74,9 @@ func (b *Builder) append_implies(rule Defines) (e error) {
 	// Can check here for self-definition
 	for i, _ := range rule.Right {
 		node := b.build_tree(rule.Right[i : i + 1])
-		key, ok := node.(Key)
+		key, ok := node.(*Key)
 		if ok {
-			key := b.Variables[key.Name]
 			key.rules = append(key.rules, rule)
-			b.Variables[key.Name] = key
 		}
 	}
 	return
@@ -86,9 +84,11 @@ func (b *Builder) append_implies(rule Defines) (e error) {
 
 func (b *Builder) build_tree(a []string) (tree Node) {
 	if len(a) == 1 {
-		k := b.Variables[a[0]]
-		k.Name = a[0]
-		b.Variables[a[0]] = k
+		_, ok := b.Variables[a[0]]
+		if !ok {
+			b.Variables[a[0]] = &Key{}
+		}
+		b.Variables[a[0]].Name = a[0]
 		return b.Variables[a[0]]
 	}
 	index := find_operator(a)
@@ -101,22 +101,23 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	case AND:
 		var op And
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
-		return op
+		return &op
 	case OR:
 		var op Or
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
-		return op
+		return &op
 	case XOR:
 		var op Xor
 		op.Left, op.Right = b.build_tree(left), b.build_tree(right)
-		return op
+		return &op
 	case NOT:
 		var op Not
 		op.Right = b.build_tree(right)
-		return op
+		return &op
 	case LEFT_BRACKET:
-		op := b.build_tree(a[1 : len(a) - 1])
-		return op
+		var op Parenthesis
+		op.Op = b.build_tree(a[1 : len(a) - 1])
+		return &op
 	}
 	// case IMPLIES:
 	// 	var op Implies
@@ -133,8 +134,12 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 func (b *Builder) Eval_rules(s string) (value bool, e error) {
 	fmt.Println("\tEval_rules")
 	defer fmt.Println("\tEnd Eval rules")
-	k := b.Variables[s]
-	k.Name = s
+	k, ok := b.Variables[s]
+	if !ok {
+		b.Variables[s] = &Key{}
+		k = b.Variables[s]
+		k.Name = s
+	}
 	old_val := k.Value
 	old_state := k.State
 	for i, rule := range k.rules {
@@ -147,7 +152,6 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 	if old_state != KEY_DEFAULT && k.Value != old_val {
 		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
 	}
-	b.Variables[s] = k
 	return k.Value, e
 }
 
@@ -159,7 +163,12 @@ func (b *Builder) process_query(a []string) {
 
 func (b *Builder) process_facts(a []string) {
 	for _, s := range a[1 : len(a)] {
-		b.Variables[s] = Key{Name:s, Value:true, State:KEY_GIVEN}
+		_, ok := b.Variables[s]
+		if !ok {
+			b.Variables[s] = &Key{Name:s, Value:true, State:KEY_GIVEN}
+		} else {
+			b.Variables[s].Value, b.Variables[s].State = true, KEY_GIVEN
+		}
 	}
 }
 
@@ -197,7 +206,7 @@ func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree 
 // IOF == multiple rules AND
 func (b *Builder) build(tokens chan string) (e error) {
 	b.Rules = make(map[string]Node)
-	b.Variables = make(map[string]Key)
+	b.Variables = make(map[string]*Key)
 	//b.Queries = make([]string, 0)
 
 	a := make([]string, 0)
