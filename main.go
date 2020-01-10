@@ -43,12 +43,15 @@ func main() {
 		fmt.Println(e)
 		return
 	}
-	l, e := lexer.New(content, os.Args[1])
-	if e != nil {
+	l := lexer.New(content, os.Args[1])
+	if l.Error != nil {
 		fmt.Println(e)
 		return
 	}
 	s, e := solver.New(l.Tokens)
+	if l.Error != nil {
+		e = l.Error
+	}
 	if e != nil {
 		fmt.Println(e)
 		return

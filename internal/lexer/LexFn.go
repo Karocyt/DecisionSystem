@@ -8,7 +8,7 @@ import (
 type LexFn func(*Lexer) LexFn
 
 const RuneError = '\uFFFD' // the "error" Rune or "Unicode replacement character"
-const Debug = false
+const Debug = true//false
 
 /*
 Jumps all spaces before to transit to return the next state passed as parameter
