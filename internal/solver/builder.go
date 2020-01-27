@@ -209,6 +209,6 @@ func New(input chan string) (b Builder, e error) {
 	}
 	b = Builder{}
 	e = b.build(input)
-	return
+	return b, e
 }
 

@@ -9,6 +9,22 @@ import (
 	"os"
 )
 
+/*
+
+In print result: need to compute and take
+fingerprint of output for every order to check if unconsistencies
+
+In builder.go/eval_rules: need to do the same.
+
+Also need to propagate the name of the variable further to check if it's not referring itself later on.
+
+For this purpose, needs to copy the map in a loop as:
+for x, y in map, newmap[x] = y
+
+
+
+*/
+
 func getInput() (string, error) {
 	var s string
 
