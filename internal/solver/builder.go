@@ -8,6 +8,7 @@ import (
 type Builder struct {
 	Variables map[string]*Key
 	Queries	[]string
+	Facts 	[]string
 }
 
 func map_precedence() map[string]int {
@@ -128,8 +129,14 @@ func (b *Builder) process_query(a []string) {
 	}
 }
 
-func (b *Builder) process_facts(a []string) {
-	for _, s := range a[1 : len(a)] {
+func (b *Builder) take_facts(a []string) {
+	if b.Facts == nil {
+		b.Facts = a
+	}
+}
+
+func (b *Builder) process_facts() {
+	for _, s := range b.Facts[1 : len(b.Facts)] {
 		_, ok := b.Variables[s]
 		var op True
 		if !ok {
@@ -137,7 +144,6 @@ func (b *Builder) process_facts(a []string) {
 		} else {
 			b.Variables[s].Child = &op
 		}
-
 	}
 }
 
@@ -157,7 +163,7 @@ func (b *Builder) process_rule(a []string) (e error) {
 
 func (b *Builder) process_line(a []string) (e error) {
 	if a[0] == EQUALS {
-		b.process_facts(a)
+		b.take_facts(a)
 	} else if a[0] == QUERY {
 		b.process_query(a)
 	} else {
@@ -187,6 +193,7 @@ func (b *Builder) build(tokens chan string) (e error) {
 		}
 		i++
 	}
+	b.process_facts()
 	return
 }
 
