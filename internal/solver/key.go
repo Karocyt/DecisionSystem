@@ -19,7 +19,7 @@ type Key struct {
 }
 
 func (k *Key) Eval(key string) (mybool bool, e error) { // Never evaluate subtree
-	fmt.Println("\tKey Eval", k.Name, key)
+	fmt.Println("\tKey Eval", k.Name, key)				//  Might need an array of strings to check everything
 	//defer fmt.Println("\tEnd Key Eval", k.Name, key)
 	if k.Name == key {
 		fmt.Println("BUG ?!")
