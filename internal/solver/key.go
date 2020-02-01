@@ -25,10 +25,10 @@ func (k *Key) Eval(keys []string) (mybool bool, e error) {
     if (mybool) {
     	var op True
     	k.Child = &op
-    } else {
-    	var op False
-    	k.Child = &op
-    }
+    } //else {
+    //	var op False
+    //	k.Child = &op
+    //}
     return
 }
 

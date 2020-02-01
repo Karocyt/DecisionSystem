@@ -68,19 +68,33 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 
 func (b *Builder) append_implies(rule Rule) (e error) {
 	// Left to do operator in right operand 					/// need to make big op
-	for i, _ := range rule.Right {
-		node := b.build_tree(rule.Right[i : i + 1])
-		key, ok := node.(*Key)
-		if ok {
-			if len(rule.Right) == 1	{			///// BRICOLAGE TOUT CASSÉ, NE PREND PAS LES
-				key.Child = rule.Left // MULTI-RULE
-			} else if len(rule.Right) == 2 && rule.Right[0] == NOT {
-				var op Not
-				op.Right = rule.Left
-				key.Child = &op
-			}
+	// for i, _ := range rule.Right {
+	// 	node := b.build_tree(rule.Right[i : i + 1])
+	// 	key, ok := node.(*Key)
+	// 	if ok {
+	fmt.Println(rule.Right, rule.Left)
+	if len(rule.Right) == 1	{
+		fmt.Println("Ingesting simple rule for", rule.Right)
+		node := b.build_tree(rule.Right[0 : 1])
+		fmt.Println(node)
+		node.(*Key).Child, e = add_op(rule.Left, node.(*Key).Child)
+		fmt.Println(node)
+	} else if len(rule.Right) == 2 && rule.Right[0] == NOT {
+		fmt.Println("Ingesting Not for", rule.Right)
+		var op Not
+		op.Right = rule.Left
+		node := b.build_tree(rule.Right[1 : 2])
+		node.(*Key).Child, e = add_op(&op, node.(*Key).Child) // not sure of this (NOT in conclusion) !!! <------
+	} else if rule.Right[1] == AND {
+		fmt.Println("Ingesting And for", rule.Right)
+		node1 := b.build_tree(rule.Right[0 : 1])
+		node2 := b.build_tree(rule.Right[2 : 3])
+		node1.(*Key).Child, e = add_op(rule.Left, node1.(*Key).Child)
+		if e != nil {
+			return
 		}
-	}
+		node2.(*Key).Child, e = add_op(rule.Left, node2.(*Key).Child)
+	} 													// left to do Or in conclusion
 	return
 }
 

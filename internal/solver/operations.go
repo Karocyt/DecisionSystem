@@ -35,7 +35,7 @@ func (op And) Eval(keys []string) (bool, error) {
 }
 
 func (op And) String() string {
-	return fmt.Sprintf("(%s + %s)", op.Left, op.Right)
+	return fmt.Sprintf("(%T + %T)", op.Left, op.Right)
 }
 
 type Or struct {  
@@ -45,13 +45,13 @@ type Or struct {
 func (op Or) Eval(keys []string) (bool, error) {
 	val1, e := op.Left.Eval(keys)
 	if !val1 || e != nil {
-		return op.Right.Eval(keys) ////////////// ignorer errors, to check
+		return op.Right.Eval(keys) ////////////// ignorer errors, to keep in check
 	}
 	return val1, e
 }
 
 func (op Or) String() string {
-	return fmt.Sprintf("(%s | %s)", op.Left, op.Right)
+	return fmt.Sprintf("(%T | %T)", op.Left, op.Right)
 }
 
 type Xor struct {  
@@ -68,7 +68,7 @@ func (op Xor) Eval(keyss []string) (bool, error) {
 }
 
 func (op Xor) String() string {
-	return fmt.Sprintf("(%s ^ %s)", op.Left, op.Right)
+	return fmt.Sprintf("(%T ^ %T)", op.Left, op.Right)
 }
 
 type Not struct {  
@@ -81,7 +81,7 @@ func (op Not) Eval(keys []string) (bool, error) {
 }
 
 func (op Not) String() string {
-	return fmt.Sprintf("!%s", op.Right)
+	return fmt.Sprintf("!%T", op.Right)
 }
 
 type Parenthesis struct {  
@@ -93,7 +93,7 @@ func (op Parenthesis) Eval(keys []string) (bool, error) {
 }
 
 func (op Parenthesis) String() string {
-	return fmt.Sprintf("%s", op)
+	return fmt.Sprintf("%T", op)
 }
 
 type True struct {  
