@@ -48,6 +48,13 @@ func (op Defines) Apply(b *Builder) (e error) {
 	
 	// //for each right, eval left
 	// val, e := op.Left.Eval("")
+	// // or translate right ops into left ops:
+	// "A+B => C|D" generate rules:
+	//		!C + A +B => D
+	//          AND
+	//		!D + A + B => C
+
+	// for now taking op.Right[0] (so ignoring leftover)
 	return e
 }
 
