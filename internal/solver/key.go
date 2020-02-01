@@ -19,16 +19,17 @@ type Key struct {
 }
 
 func (k *Key) Eval(key string) (mybool bool, e error) {
-	// fmt.Println("\tKey Eval", k.Name, key)
+	fmt.Println("\tKey Eval", k.Name, key)
 	//defer fmt.Println("\tEnd Key Eval", k.Name, key)
 	if k.Name == key {
+		fmt.Println("BUG ?!")
 		return k.Value, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", key))
 	}
 	return k.Value, e
 }
 
 func (key *Key) Set(val bool) (e error) {
-	// fmt.Println("\tKey Set", key.Name, val)
+	fmt.Println("\tKey Set", key.Name, val)
 	// defer fmt.Println("\tEnd Key Set", key.Name, val)
 	if key.State == KEY_DEFAULT {
 		key.State = KEY_COMPUTED
@@ -42,7 +43,7 @@ func (key *Key) Set(val bool) (e error) {
 }
 
 func (key Key) String() string {
-	val, _ := key.Eval(key.Name) 
+	val, _ := key.Eval(key.Name)
 	return fmt.Sprintf("{%s:%t:%d} => %t", key.Name, key.Value, key.State, val)
 }
 

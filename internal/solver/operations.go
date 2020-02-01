@@ -77,6 +77,7 @@ type Not struct {
 }
 
 func (op Not) Eval(key string) (bool, error) {
+	fmt.Println("In NOT for", op.Right)
 	val, e := op.Right.Eval(key)
 	return !val, e
 }
