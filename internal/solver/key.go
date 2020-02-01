@@ -18,7 +18,7 @@ type Key struct {
 	rules	[]Defines
 }
 
-func (k *Key) Eval(key string) (mybool bool, e error) {
+func (k *Key) Eval(key string) (mybool bool, e error) { // Never evaluate subtree
 	fmt.Println("\tKey Eval", k.Name, key)
 	//defer fmt.Println("\tEnd Key Eval", k.Name, key)
 	if k.Name == key {
