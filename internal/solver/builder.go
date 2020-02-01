@@ -65,7 +65,7 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 	return k.Eval(make([]string, 0))
 }
 
-func (b *Builder) append_implies(rule Defines) (e error) {
+func (b *Builder) append_implies(rule Rule) (e error) {
 	// Left to do operator in right operand 					/// need to make big op
 	for i, _ := range rule.Right {
 		node := b.build_tree(rule.Right[i : i + 1])
@@ -151,7 +151,7 @@ func (b *Builder) process_rule(a []string) (e error) {
 	rule := a[0 : index]
 	result := a[index + 1 : len(a)]
 	tree := b.build_tree(rule)
-	e = b.append_implies(Defines{tree, a[index], result})
+	e = b.append_implies(Rule{tree, a[index], result})
 	return e
 }
 
