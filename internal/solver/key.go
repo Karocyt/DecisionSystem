@@ -56,7 +56,6 @@ func (key *Key) Set(val bool) (e error) {
 }
 
 func (key Key) String() string {
-	val := key.Value
-	return fmt.Sprintf("{%s:%t:%d} => %t", key.Name, key.Value, key.State, val)
+	return fmt.Sprintf("{%s:%t:%d}", key.Name, key.Value, key.State)
 }
 
