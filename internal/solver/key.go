@@ -19,11 +19,10 @@ type Key struct {
 }
 
 func (k *Key) Eval(keys []string) (mybool bool, e error) { // Never evaluate subtree
-	fmt.Println("\tKey Eval", k.Name, keys)				//  Might need an array of strings to check everything
+	//fmt.Println("\tKey Eval", k.Name, keys)				//  Might need an array of strings to check everything
 	//defer fmt.Println("\tEnd Key Eval", k.Name, key)
 	for _, item := range keys {
         if item == k.Name {
-			fmt.Println("BUG ?!")
             return false, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", item))
         }
     }
@@ -43,7 +42,7 @@ func (k *Key) Eval(keys []string) (mybool bool, e error) { // Never evaluate sub
 }
 
 func (key *Key) Set(val bool) (e error) {
-	fmt.Println("\tKey Set", key.Name, val)
+	//fmt.Println("\tKey Set", key.Name, val)
 	// defer fmt.Println("\tEnd Key Set", key.Name, val)
 	if key.State == KEY_DEFAULT {
 		key.State = KEY_COMPUTED
