@@ -1,8 +1,8 @@
 package solver
 
 import (
-	"errors"
-	"fmt"
+	//"errors"
+	//"fmt"
 )
 
 type Builder struct {
@@ -64,30 +64,25 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 		b.Variables[s] = &Key{}
 		k = b.Variables[s]
 		k.Name = s
+		var op False
+		k.Child = &op
 	}
-	old_val := k.Value
-	old_state := k.State
-	for _, rule := range k.rules {
-		//fmt.Println("rule ", i, ": ", rule)
-		e = rule.Apply(b)
-		if e != nil {
-			return k.Value, e
-		}
-	}
-	if old_state != KEY_DEFAULT && k.Value != old_val {
-		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
-	}
-	return k.Value, e
+	return k.Eval(make([]string, 0))
 }
 
 func (b *Builder) append_implies(rule Defines) (e error) {
-	// Left to do operator in right operand
-	// Can check here for self-definition
+	// Left to do operator in right operand 					/// need to make big op
 	for i, _ := range rule.Right {
 		node := b.build_tree(rule.Right[i : i + 1])
 		key, ok := node.(*Key)
 		if ok {
-			key.rules = append(key.rules, rule)
+			if len(rule.Right) == 1	{			///// BRICOLAGE TOUT CASSÉ, NE PREND PAS LES
+				key.Child = rule.Left // MULTI-RULE
+			} else if len(rule.Right) == 2 && rule.Right[0] == NOT {
+				var op Not
+				op.Right = rule.Left
+				key.Child = &op
+			}
 		}
 	}
 	return

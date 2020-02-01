@@ -18,19 +18,19 @@ const (
 )
 
 type Node interface{  
-    Eval(key string) (bool, error)
+    Eval(keys []string) (bool, error)
 }
 
 type And struct {  
     Left, Right Node
 }
 
-func (op And) Eval(key string) (bool, error) {
-	val1, e := op.Left.Eval(key)
+func (op And) Eval(keys []string) (bool, error) {
+	val1, e := op.Left.Eval(keys)
 	if e != nil {
 		return false, e
 	}
-	val2, e := op.Right.Eval(key)
+	val2, e := op.Right.Eval(keys)
 	return val1 && val2, e
 }
 
@@ -42,13 +42,12 @@ type Or struct {
     Left, Right Node
 }
 
-func (op Or) Eval(key string) (bool, error) {
-	val1, e := op.Left.Eval(key)
-	if e != nil {
-		return false, e
+func (op Or) Eval(keys []string) (bool, error) {
+	val1, e := op.Left.Eval(keys)
+	if !val1 || e != nil {
+		return op.Right.Eval(keys) ////////////// ignorer errors, to check
 	}
-	val2, e := op.Right.Eval(key)
-	return val1 || val2, e
+	return val1, e
 }
 
 func (op Or) String() string {
@@ -59,12 +58,12 @@ type Xor struct {
     Left, Right Node
 }
 
-func (op Xor) Eval(key string) (bool, error) {
-	val1, e := op.Left.Eval(key)
+func (op Xor) Eval(keyss []string) (bool, error) {
+	val1, e := op.Left.Eval(keyss)
 	if e != nil {
 		return false, e
 	}
-	val2, e := op.Right.Eval(key)
+	val2, e := op.Right.Eval(keyss)
 	return val1 != val2, e
 }
 
@@ -76,9 +75,9 @@ type Not struct {
     Right Node
 }
 
-func (op Not) Eval(key string) (bool, error) {
+func (op Not) Eval(keys []string) (bool, error) {
 	fmt.Println("In NOT for", op.Right)
-	val, e := op.Right.Eval(key)
+	val, e := op.Right.Eval(keys)
 	return !val, e
 }
 
@@ -90,8 +89,8 @@ type Parenthesis struct {
     Op Node
 }
 
-func (op Parenthesis) Eval(key string) (bool, error) {
-	return op.Op.Eval(key)
+func (op Parenthesis) Eval(keys []string) (bool, error) {
+	return op.Op.Eval(keys)
 }
 
 func (op Parenthesis) String() string {
@@ -101,7 +100,7 @@ func (op Parenthesis) String() string {
 type True struct {  
 }
 
-func (op True) Eval(key string) (mybool bool, e error) {
+func (op True) Eval(keys []string) (mybool bool, e error) {
 	return true, e
 }
 
@@ -112,7 +111,7 @@ func (op True) String() string {
 type False struct {  
 }
 
-func (op False) Eval(key string) (mybool bool, e error) {
+func (op False) Eval(keys []string) (mybool bool, e error) {
 	return false, e
 }
 

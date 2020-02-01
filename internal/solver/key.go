@@ -15,25 +15,31 @@ type Key struct {
 	Name 	string
 	Value  	bool
 	State 	int
-	rules	[]Defines
+	Child	Node /// might need a pointer ?
 }
 
-func (k *Key) Eval(key string) (mybool bool, e error) { // Never evaluate subtree
-	fmt.Println("\tKey Eval", k.Name, key)				//  Might need an array of strings to check everything
+func (k *Key) Eval(keys []string) (mybool bool, e error) { // Never evaluate subtree
+	fmt.Println("\tKey Eval", k.Name, keys)				//  Might need an array of strings to check everything
 	//defer fmt.Println("\tEnd Key Eval", k.Name, key)
-	if k.Name == key {
-		fmt.Println("BUG ?!")
-		return k.Value, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", key))
-	}
-	if len(k.rules) > 0 && k.State == KEY_DEFAULT { ///////////////////////// To change when one big op
-		mybool, e = k.rules[0].Eval(key)
-		if e != nil {
-			return
-		}
-		e = k.Set(mybool)
-		return
-	}
-	return k.Value, e
+	for _, item := range keys {
+        if item == k.Name {
+			fmt.Println("BUG ?!")
+            return false, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", item))
+        }
+    }
+    mybool, e = k.Child.Eval(append(keys, k.Name))
+    if e != nil {
+    	return
+    }
+    e = k.Set(mybool)
+    if (mybool) {
+    	var op True
+    	k.Child = &op
+    } else {
+    	var op False
+    	k.Child = &op
+    }
+    return
 }
 
 func (key *Key) Set(val bool) (e error) {
@@ -51,7 +57,7 @@ func (key *Key) Set(val bool) (e error) {
 }
 
 func (key Key) String() string {
-	val, _ := key.Eval(key.Name)
+	val := key.Value
 	return fmt.Sprintf("{%s:%t:%d} => %t", key.Name, key.Value, key.State, val)
 }
 
