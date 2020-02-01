@@ -7,7 +7,6 @@ import (
 
 type Builder struct {
 	Variables map[string]*Key
-	//Rules map[string]Node
 	Queries	[]string
 }
 
@@ -39,8 +38,6 @@ func next_bracket(a []string, i int) (int) {
 }
 
 func find_operator(a []string) (i int) {
-	//precedence := prec_dict()
-
 	best := -1
 	match := -1
 	for i := 0; i < len(a); i++ {
@@ -57,8 +54,6 @@ func find_operator(a []string) (i int) {
 }
 
 func (b *Builder) Eval_rules(s string) (value bool, e error) {
-	// fmt.Println("\tEval_rules")
-	// defer fmt.Println("\tEnd Eval rules")
 	k, ok := b.Variables[s]
 	if !ok {
 		b.Variables[s] = &Key{}
@@ -101,7 +96,6 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	left := a[0 : index]
 	right := a[index + 1 : len(a)]
 	operator := a[index]
-	//fmt.Println("build_tree:\n-left:\t\t", left, "\n-right:\t\t", right, "\n-operator:\t",  operator)
 
 	switch operator {
 	case AND:
@@ -139,17 +133,15 @@ func (b *Builder) process_facts(a []string) {
 		_, ok := b.Variables[s]
 		var op True
 		if !ok {
-			b.Variables[s] = &Key{Name:s,Child:&op}//b.Variables[s] = &Key{Name:s, Value:true}//, State:KEY_GIVEN}
+			b.Variables[s] = &Key{Name:s,Child:&op}
 		} else {
-			b.Variables[s].Child = &op//Value, b.Variables[s].State = true//, KEY_GIVEN
+			b.Variables[s].Child = &op
 		}
 
 	}
 }
 
 func (b *Builder) process_rule(a []string) (e error) {
-	// fmt.Println("\tProcess_rule", a)
-	// defer fmt.Println("\tEnd process rule", a)
 	index := 0
 	for i, t := range a {
 		if t == IF_ONLY_IF || t == IMPLIES {
@@ -160,11 +152,10 @@ func (b *Builder) process_rule(a []string) (e error) {
 	result := a[index + 1 : len(a)]
 	tree := b.build_tree(rule)
 	e = b.append_implies(Defines{tree, a[index], result})
-	//fmt.Println("rule tree:\t", tree, "\n")
 	return e
 }
 
-func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree and hashtable
+func (b *Builder) process_line(a []string) (e error) {
 	if a[0] == EQUALS {
 		b.process_facts(a)
 	} else if a[0] == QUERY {
@@ -178,7 +169,6 @@ func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree 
 // IMPLIES == multiples rules OR
 // IOF == multiple rules AND
 func (b *Builder) build(tokens chan string) (e error) {
-	//b.Rules = make(map[string]Node)
 	b.Variables = make(map[string]*Key)
 
 	a := make([]string, 0)
