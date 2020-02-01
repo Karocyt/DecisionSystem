@@ -1,8 +1,8 @@
 package solver
 
 import (
-	//"errors"
-	//"fmt"
+	"errors"
+	"fmt"
 )
 
 type Builder struct {
@@ -132,10 +132,15 @@ func (b *Builder) process_query(a []string) {
 func (b *Builder) take_facts(a []string) {
 	if b.Facts == nil {
 		b.Facts = a
+	} else {
+		fmt.Println("Ignoring duplicate Facts line")
 	}
 }
 
-func (b *Builder) process_facts() {
+func (b *Builder) process_facts() (e error) {
+	if b.Facts == nil {
+		return errors.New("Missing Facts line")
+	}
 	for _, s := range b.Facts[1 : len(b.Facts)] {
 		_, ok := b.Variables[s]
 		var op True
@@ -145,6 +150,7 @@ func (b *Builder) process_facts() {
 			b.Variables[s].Child = &op
 		}
 	}
+	return
 }
 
 func (b *Builder) process_rule(a []string) (e error) {
@@ -193,7 +199,10 @@ func (b *Builder) build(tokens chan string) (e error) {
 		}
 		i++
 	}
-	b.process_facts()
+	if e != nil {
+		return e
+	}
+	e = b.process_facts()
 	return
 }
 
