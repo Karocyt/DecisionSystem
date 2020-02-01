@@ -25,6 +25,14 @@ func (k *Key) Eval(key string) (mybool bool, e error) { // Never evaluate subtre
 		fmt.Println("BUG ?!")
 		return k.Value, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", key))
 	}
+	if len(k.rules) > 0 && k.State == KEY_DEFAULT { ///////////////////////// To change when one big op
+		mybool, e = k.rules[0].Eval(key)
+		if e != nil {
+			return
+		}
+		e = k.Set(mybool)
+		return
+	}
 	return k.Value, e
 }
 

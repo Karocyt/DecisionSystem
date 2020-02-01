@@ -10,6 +10,10 @@ type Defines struct {
     Right []string
 }
 
+func (op Defines) Eval(key string) (bool, error) {
+	return op.Left.Eval(op.Right[0])		// <|====================== // To change when one big op
+}
+
 func (op Defines) Apply(b *Builder) (e error) {
 	if len(op.Right) == 1 { 								//One outcome
 		fmt.Println("Solving for", op.Right[0])

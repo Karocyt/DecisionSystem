@@ -97,3 +97,25 @@ func (op Parenthesis) Eval(key string) (bool, error) {
 func (op Parenthesis) String() string {
 	return fmt.Sprintf("%s", op)
 }
+
+type True struct {  
+}
+
+func (op True) Eval(key string) (mybool bool, e error) {
+	return true, e
+}
+
+func (op True) String() string {
+	return fmt.Sprintf("True")
+}
+
+type False struct {  
+}
+
+func (op False) Eval(key string) (mybool bool, e error) {
+	return false, e
+}
+
+func (op False) String() string {
+	return fmt.Sprintf("False")
+}
