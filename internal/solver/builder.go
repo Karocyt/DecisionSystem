@@ -139,11 +139,11 @@ func (b *Builder) process_facts(a []string) {
 		_, ok := b.Variables[s]
 		var op True
 		if !ok {
-			b.Variables[s] = &Key{Name:s, Value:true, State:KEY_GIVEN}
+			b.Variables[s] = &Key{Name:s,Child:&op}//b.Variables[s] = &Key{Name:s, Value:true}//, State:KEY_GIVEN}
 		} else {
-			b.Variables[s].Value, b.Variables[s].State = true, KEY_GIVEN
+			b.Variables[s].Child = &op//Value, b.Variables[s].State = true//, KEY_GIVEN
 		}
-		b.Variables[s].Child = &op
+
 	}
 }
 
