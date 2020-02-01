@@ -11,7 +11,8 @@ type Defines struct {
 }
 
 func (op Defines) Apply(b *Builder) (e error) {
-	if len(op.Right) == 1 {
+	if len(op.Right) == 1 { 								//One outcome
+		fmt.Println("Solving for", op.Right[0])
 		_, e := op.Left.Eval(op.Right[0])
 		if e != nil {
 			return e
@@ -25,7 +26,7 @@ func (op Defines) Apply(b *Builder) (e error) {
 		if e != nil {
 			return e
 		}
-	} else if len(op.Right) == 2 && op.Right[0] == NOT {
+	} else if len(op.Right) == 2 && op.Right[0] == NOT {	// NOT outcome
 		_, e := op.Left.Eval(op.Right[1])
 		if e != nil {
 			return e
@@ -46,7 +47,7 @@ func (op Defines) Apply(b *Builder) (e error) {
 	// right := op.Right[index + 1 : len(a)]
 	// operator := a[index]
 	
-	// //for each right, eval left
+	// //for each right, eval Left 							// Multi outcome
 	// val, e := op.Left.Eval("")
 	// // or translate right ops into left ops:
 	// "A+B => C|D" generate rules:
