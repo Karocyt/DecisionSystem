@@ -24,17 +24,18 @@ func getInput() (string, error) {
 	return s, nil
 }
 
-func print_result(b *solver.Builder) {
-	fmt.Println("Results: {")
-	defer fmt.Println("}")
+func print_result(b *solver.Builder) (e error) {
+	// fmt.Println("Results: {")
+	// defer fmt.Println("}")
 	for _, s := range b.Queries {
 		val, e := b.Eval_rules(s)
 		if e != nil {
-			fmt.Println(e)
+			return e
 		} else {
 			fmt.Printf("\t%s = %t\n", s, val)
 		}
 	}
+	return e
 }
 
 func mainfunc() int {
@@ -57,7 +58,11 @@ func mainfunc() int {
 		return 1
 	}
 	//fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
-	print_result(&s)
+	e = print_result(&s)
+	if e != nil {
+		fmt.Println(e)
+		return 1
+	}
 	return 0
 }
 
