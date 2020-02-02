@@ -53,16 +53,16 @@ func print_result(b *solver.Builder) {
 	}
 }
 
-func main() {
+func mainfunc() int {
 	content, e := getInput()
 	if e != nil {
 		fmt.Println(e)
-		return
+		return 1
 	}
 	l := lexer.New(content, os.Args[1])
 	if l.Error != nil {
 		fmt.Println(e)
-		return
+		return 1
 	}
 	s, e := solver.New(l.Tokens)
 	if l.Error != nil {
@@ -70,9 +70,13 @@ func main() {
 	}
 	if e != nil {
 		fmt.Println(e)
-		return
+		return 1
 	}
 	//fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
 	print_result(&s)
-	return
+	return 0
+}
+
+func main() {
+	os.Exit(mainfunc())
 }
