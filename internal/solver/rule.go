@@ -10,15 +10,14 @@ type Rule struct {
     Right []string
 }
 
-// MANAGE DEFINES CONCATENATION
 
 func (op Rule) String() string {
 	return fmt.Sprintf("%T %s %T", op.Left, op.operator, op.Right)
 }
 
-
-
-
+/*
+	Appends an "=>" rule to the pre-existing set via a Or operation set on top
+*/
 func add_op(to_add Node, child Node) (new Node, e error) {
 	fmt.Println("\t", child, to_add)
 	if child == nil {

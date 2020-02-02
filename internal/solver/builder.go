@@ -67,11 +67,7 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 }
 
 func (b *Builder) append_implies(rule Rule) (e error) {
-	// Left to do operator in right operand 					/// need to make big op
-	// for i, _ := range rule.Right {
-	// 	node := b.build_tree(rule.Right[i : i + 1])
-	// 	key, ok := node.(*Key)
-	// 	if ok {
+	// 	Safe cast: key, ok := node.(*Key)
 	fmt.Println(rule.Right, rule.Left)
 	if len(rule.Right) == 1	{
 		fmt.Println("Ingesting simple rule for", rule.Right)
@@ -79,12 +75,12 @@ func (b *Builder) append_implies(rule Rule) (e error) {
 		fmt.Println(node)
 		node.(*Key).Child, e = add_op(rule.Left, node.(*Key).Child)
 		fmt.Println(node)
-	} else if len(rule.Right) == 2 && rule.Right[0] == NOT {
-		fmt.Println("Ingesting Not for", rule.Right)
-		var op Not
+	} else if len(rule.Right) == 2 && rule.Right[0] == NOT { // not sure of this
+		fmt.Println("Ingesting Not for", rule.Right)		// (NOT in conclusion)
+		var op Not 									// for now rejected at lexer level
 		op.Right = rule.Left
 		node := b.build_tree(rule.Right[1 : 2])
-		node.(*Key).Child, e = add_op(&op, node.(*Key).Child) // not sure of this (NOT in conclusion) !!! <------
+		node.(*Key).Child, e = add_op(&op, node.(*Key).Child) 
 	} else if rule.Right[1] == AND {
 		fmt.Println("Ingesting And for", rule.Right)
 		node1 := b.build_tree(rule.Right[0 : 1])
