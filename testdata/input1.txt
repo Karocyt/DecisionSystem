@@ -2,8 +2,18 @@ Oiseau | Avion <=> Voler 				# Un Oiseau ou un Avion peuvent Voler, et tout ce q
 (Plumes + Voler) => Oiseau 				# Un truc à Plumes qui peut Voler est un Oiseau
 Animal => Voler ^ Nager 				# Un Animal peut Voler ou Nager, pas les deux
 				# WARNING: ^x == &!(x)
+
+
+
 Plumes => Animal						# Un truc à Plumes est un Animal
 Voler + ! Avion => Oiseau
 
 = Plumes Voler
+
+
+
 ? Oiseau Nager							# Oiseau = True, Nager = False
+
+
+
+

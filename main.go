@@ -48,7 +48,7 @@ func print_result(b *solver.Builder) {
 		if e != nil {
 			fmt.Println(e)
 		} else {
-			fmt.Printf("%s = %t\n", s, val)
+			fmt.Printf("\t%s = %t\n", s, val)
 		}
 	}
 }
@@ -72,7 +72,7 @@ func main() {
 		fmt.Println(e)
 		return
 	}
-	fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
+	//fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
 	print_result(&s)
 	return
 }

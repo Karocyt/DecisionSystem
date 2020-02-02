@@ -68,21 +68,20 @@ func (b *Builder) Eval_rules(s string) (value bool, e error) {
 
 func (b *Builder) append_implies(rule Rule) (e error) {
 	// 	Safe cast: key, ok := node.(*Key)
-	fmt.Println(rule.Right, rule.Left)
 	if len(rule.Right) == 1	{
-		fmt.Println("Ingesting simple rule for", rule.Right)
+		//fmt.Println("Ingesting simple rule for", rule.Right)
 		node := b.build_tree(rule.Right[0 : 1])
-		fmt.Println(node)
+		//fmt.Println(node)
 		node.(*Key).Child, e = add_op(rule.Left, node.(*Key).Child)
-		fmt.Println(node)
+		//fmt.Println(node)
 	} else if len(rule.Right) == 2 && rule.Right[0] == NOT { // not sure of this
-		fmt.Println("Ingesting Not for", rule.Right)		// (NOT in conclusion)
+		//fmt.Println("Ingesting Not for", rule.Right)		// (NOT in conclusion)
 		var op Not 									// for now rejected at lexer level
 		op.Right = rule.Left
 		node := b.build_tree(rule.Right[1 : 2])
 		node.(*Key).Child, e = add_op(&op, node.(*Key).Child) 
 	} else if rule.Right[1] == AND {
-		fmt.Println("Ingesting And for", rule.Right)
+		//fmt.Println("Ingesting And for", rule.Right)
 		node1 := b.build_tree(rule.Right[0 : 1])
 		node2 := b.build_tree(rule.Right[2 : 3])
 		node1.(*Key).Child, e = add_op(rule.Left, node1.(*Key).Child)
