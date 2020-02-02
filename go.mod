@@ -1,6 +1,6 @@
 module github.com/Karocyt/expertsystem
 
-go 1.12
+go 1.14
 
 replace github.com/Karocyt/expertsystem/internal/solver => ./internal/solver
 
