@@ -7,8 +7,8 @@ import (
 
 type Builder struct {
 	Variables map[string]*Key
-	//Rules map[string]Node
 	Queries	[]string
+	Facts 	[]string
 }
 
 func map_precedence() map[string]int {
@@ -39,8 +39,6 @@ func next_bracket(a []string, i int) (int) {
 }
 
 func find_operator(a []string) (i int) {
-	//precedence := prec_dict()
-
 	best := -1
 	match := -1
 	for i := 0; i < len(a); i++ {
@@ -56,16 +54,42 @@ func find_operator(a []string) (i int) {
 	return match
 }
 
-func (b *Builder) append_implies(rule Defines) (e error) {
-	// Left to do operator in right operand
-	// Can check here for self-definition
-	for i, _ := range rule.Right {
-		node := b.build_tree(rule.Right[i : i + 1])
-		key, ok := node.(*Key)
-		if ok {
-			key.rules = append(key.rules, rule)
-		}
+func (b *Builder) Eval_rules(s string) (value bool, e error) {
+	k, ok := b.Variables[s]
+	if !ok {
+		b.Variables[s] = &Key{}
+		k = b.Variables[s]
+		k.Name = s
+		var op False
+		k.Child = &op
 	}
+	return k.Eval(make([]string, 0))
+}
+
+func (b *Builder) append_implies(rule Rule) (e error) {
+	// 	Safe cast: key, ok := node.(*Key)
+	if len(rule.Right) == 1	{
+		//fmt.Println("Ingesting simple rule for", rule.Right)
+		node := b.build_tree(rule.Right[0 : 1])
+		//fmt.Println(node)
+		node.(*Key).Child, e = add_op(rule.Left, node.(*Key).Child)
+		//fmt.Println(node)
+	} else if len(rule.Right) == 2 && rule.Right[0] == NOT { // not sure of this
+		//fmt.Println("Ingesting Not for", rule.Right)		// (NOT in conclusion)
+		var op Not 									// for now rejected at lexer level
+		op.Right = rule.Left
+		node := b.build_tree(rule.Right[1 : 2])
+		node.(*Key).Child, e = add_op(&op, node.(*Key).Child) 
+	} else if rule.Right[1] == AND {
+		//fmt.Println("Ingesting And for", rule.Right)
+		node1 := b.build_tree(rule.Right[0 : 1])
+		node2 := b.build_tree(rule.Right[2 : 3])
+		node1.(*Key).Child, e = add_op(rule.Left, node1.(*Key).Child)
+		if e != nil {
+			return
+		}
+		node2.(*Key).Child, e = add_op(rule.Left, node2.(*Key).Child)
+	} 													// left to do Or in conclusion
 	return
 }
 
@@ -82,7 +106,6 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	left := a[0 : index]
 	right := a[index + 1 : len(a)]
 	operator := a[index]
-	//fmt.Println("build_tree:\n-left:\t\t", left, "\n-right:\t\t", right, "\n-operator:\t",  operator)
 
 	switch operator {
 	case AND:
@@ -109,50 +132,37 @@ func (b *Builder) build_tree(a []string) (tree Node) {
 	return nil
 }
 
-func (b *Builder) Eval_rules(s string) (value bool, e error) {
-	// fmt.Println("\tEval_rules")
-	// defer fmt.Println("\tEnd Eval rules")
-	k, ok := b.Variables[s]
-	if !ok {
-		b.Variables[s] = &Key{}
-		k = b.Variables[s]
-		k.Name = s
-	}
-	old_val := k.Value
-	old_state := k.State
-	for _, rule := range k.rules {
-		//fmt.Println("rule ", i, ": ", rule)
-		e = rule.Apply(b)
-		if e != nil {
-			return k.Value, e
-		}
-	}
-	if old_state != KEY_DEFAULT && k.Value != old_val {
-		e = errors.New(fmt.Sprintf("Error: %s was already supposed to be %t.\n", k.Name, k.Value))
-	}
-	return k.Value, e
-}
-
 func (b *Builder) process_query(a []string) {
 	for _, s := range a[1 : len(a)] {
 		b.Queries = append(b.Queries, s)
 	}
 }
 
-func (b *Builder) process_facts(a []string) {
-	for _, s := range a[1 : len(a)] {
-		_, ok := b.Variables[s]
-		if !ok {
-			b.Variables[s] = &Key{Name:s, Value:true, State:KEY_GIVEN}
-		} else {
-			b.Variables[s].Value, b.Variables[s].State = true, KEY_GIVEN
-		}
+func (b *Builder) take_facts(a []string) {
+	if b.Facts == nil {
+		b.Facts = a
+	} else {
+		fmt.Println("Ignoring duplicate Facts line")
 	}
 }
 
+func (b *Builder) process_facts() (e error) {
+	if b.Facts == nil {
+		return errors.New("Missing Facts line")
+	}
+	for _, s := range b.Facts[1 : len(b.Facts)] {
+		_, ok := b.Variables[s]
+		var op True
+		if !ok {
+			b.Variables[s] = &Key{Name:s,Child:&op}
+		} else {
+			b.Variables[s].Child = &op
+		}
+	}
+	return
+}
+
 func (b *Builder) process_rule(a []string) (e error) {
-	// fmt.Println("\tProcess_rule", a)
-	// defer fmt.Println("\tEnd process rule", a)
 	index := 0
 	for i, t := range a {
 		if t == IF_ONLY_IF || t == IMPLIES {
@@ -162,14 +172,13 @@ func (b *Builder) process_rule(a []string) (e error) {
 	rule := a[0 : index]
 	result := a[index + 1 : len(a)]
 	tree := b.build_tree(rule)
-	e = b.append_implies(Defines{tree, a[index], result})
-	//fmt.Println("rule tree:\t", tree, "\n")
+	e = b.append_implies(Rule{tree, a[index], result})
 	return e
 }
 
-func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree and hashtable
+func (b *Builder) process_line(a []string) (e error) {
 	if a[0] == EQUALS {
-		b.process_facts(a)
+		b.take_facts(a)
 	} else if a[0] == QUERY {
 		b.process_query(a)
 	} else {
@@ -181,7 +190,6 @@ func (b *Builder) process_line(a []string) (e error) { //Left to do: build tree 
 // IMPLIES == multiples rules OR
 // IOF == multiple rules AND
 func (b *Builder) build(tokens chan string) (e error) {
-	//b.Rules = make(map[string]Node)
 	b.Variables = make(map[string]*Key)
 
 	a := make([]string, 0)
@@ -200,6 +208,10 @@ func (b *Builder) build(tokens chan string) (e error) {
 		}
 		i++
 	}
+	if e != nil {
+		return e
+	}
+	e = b.process_facts()
 	return
 }
 
@@ -209,6 +221,6 @@ func New(input chan string) (b Builder, e error) {
 	}
 	b = Builder{}
 	e = b.build(input)
-	return
+	return b, e
 }
 

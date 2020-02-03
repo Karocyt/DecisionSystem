@@ -18,81 +18,102 @@ const (
 )
 
 type Node interface{  
-    Eval(key string) (bool, error)
+    Eval(keys []string) (bool, error)
 }
 
 type And struct {  
     Left, Right Node
 }
 
-func (op And) Eval(key string) (bool, error) {
-	val1, e := op.Left.Eval(key)
+func (op And) Eval(keys []string) (bool, error) {
+	val1, e := op.Left.Eval(keys)
 	if e != nil {
 		return false, e
 	}
-	val2, e := op.Right.Eval(key)
+	val2, e := op.Right.Eval(keys)
 	return val1 && val2, e
 }
 
 func (op And) String() string {
-	return fmt.Sprintf("(%s + %s)", op.Left, op.Right)
+	return fmt.Sprintf("(%T + %T)", op.Left, op.Right)
 }
 
 type Or struct {  
     Left, Right Node
 }
 
-func (op Or) Eval(key string) (bool, error) {
-	val1, e := op.Left.Eval(key)
-	if e != nil {
-		return false, e
+func (op Or) Eval(keys []string) (bool, error) {
+	val1, e := op.Left.Eval(keys)
+	if !val1 || e != nil {
+		return op.Right.Eval(keys) ////////////// ignorer errors, to keep in check
 	}
-	val2, e := op.Right.Eval(key)
-	return val1 || val2, e
+	return val1, e
 }
 
 func (op Or) String() string {
-	return fmt.Sprintf("(%s | %s)", op.Left, op.Right)
+	return fmt.Sprintf("(%T | %T)", op.Left, op.Right)
 }
 
 type Xor struct {  
     Left, Right Node
 }
 
-func (op Xor) Eval(key string) (bool, error) {
-	val1, e := op.Left.Eval(key)
+func (op Xor) Eval(keyss []string) (bool, error) {
+	val1, e := op.Left.Eval(keyss)
 	if e != nil {
 		return false, e
 	}
-	val2, e := op.Right.Eval(key)
+	val2, e := op.Right.Eval(keyss)
 	return val1 != val2, e
 }
 
 func (op Xor) String() string {
-	return fmt.Sprintf("(%s ^ %s)", op.Left, op.Right)
+	return fmt.Sprintf("(%T ^ %T)", op.Left, op.Right)
 }
 
 type Not struct {  
     Right Node
 }
 
-func (op Not) Eval(key string) (bool, error) {
-	val, e := op.Right.Eval(key)
+func (op Not) Eval(keys []string) (bool, error) {
+	val, e := op.Right.Eval(keys)
 	return !val, e
 }
 
 func (op Not) String() string {
-	return fmt.Sprintf("!%s", op.Right)
+	return fmt.Sprintf("!%T", op.Right)
 }
 
 type Parenthesis struct {  
     Op Node
 }
 
-func (op Parenthesis) Eval(key string) (bool, error) {
-	return op.Op.Eval(key)
+func (op Parenthesis) Eval(keys []string) (bool, error) {
+	return op.Op.Eval(keys)
 }
 
 func (op Parenthesis) String() string {
-	return fmt.Sprintf("%s", op)
+	return fmt.Sprintf("%T", op)
+}
+
+type True struct {  
+}
+
+func (op True) Eval(keys []string) (mybool bool, e error) {
+	return true, e
+}
+
+func (op True) String() string {
+	return fmt.Sprintf("True")
+}
+
+type False struct {  
+}
+
+func (op False) Eval(keys []string) (mybool bool, e error) {
+	return false, e
+}
+
+func (op False) String() string {
+	return fmt.Sprintf("False")
 }

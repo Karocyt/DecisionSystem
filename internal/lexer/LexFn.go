@@ -44,9 +44,7 @@ func LexBegin(this *Lexer) LexFn {
 		this.Query = true
 		return LexFnSpacesJumpWrapper(this, LexQuery)
 	} else if strings.HasPrefix(str, "\n") {
-		this.Jump('\n')
-		this.NewLine()
-		return LexFnSpacesJumpWrapper(this, LexBegin)
+		return LexFnSpacesJumpWrapper(this, LexEndLine)
 	} else {
 		return LexFnSpacesJumpWrapper(this, LexKey)
 	}
@@ -262,8 +260,15 @@ func LexEndLine(this *Lexer) LexFn {
 		this.Inc()
 		this.Emit(TOKEN_EOL)
 		this.NewLine()
+		if this.Peek() == RuneError {
+			if Debug {
+				println("EOF")
+			}
+			return LexEnd
+		}
 		return LexFnSpacesJumpWrapper(this, LexBegin)
-	} else if this.Peek() == RuneError {
+	}
+	if this.Peek() == RuneError {
 		if Debug {
 			println("EOF")
 		}

@@ -3,46 +3,39 @@ package solver
 import (
 	"errors"
 	"fmt"
-)
-
-const (
-	KEY_DEFAULT = 0
-	KEY_COMPUTED = 1
-	KEY_GIVEN = 2
+    "github.com/fatih/color"
 )
 
 type Key struct {
 	Name 	string
-	Value  	bool
-	State 	int
-	rules	[]Defines
+	Child	Node
 }
 
-func (k *Key) Eval(key string) (mybool bool, e error) {
-	// fmt.Println("\tKey Eval", k.Name, key)
-	// defer fmt.Println("\tEnd Key Eval", k.Name, key)
-	if k.Name == key {
-		return k.Value, errors.New(fmt.Sprintf("Error: %s is self-referring.\n", key))
-	}
-	return k.Value, e
-}
+var boldBlack *color.Color = color.New(color.Bold, color.FgBlack)
+var boldRed *color.Color = color.New(color.Bold, color.FgRed)
 
-func (key *Key) Set(val bool) (e error) {
-	// fmt.Println("\tKey Set", key.Name, val)
-	// defer fmt.Println("\tEnd Key Set", key.Name, val)
-	if key.State == KEY_DEFAULT {
-		key.State = KEY_COMPUTED
-		key.Value = val
-	} else if key.State == KEY_GIVEN && !val {
-		e = errors.New(fmt.Sprintf("Error: %s violates your statements.\n", key.Name))
-	} else if key.State == KEY_COMPUTED && val != key.Value {
-		e = errors.New(fmt.Sprintf("Error: %s was already calculated to be %t.\n", key.Name, key.Value))
-	}
-	return
+func (k *Key) Eval(keys []string) (mybool bool, e error) {
+	for _, item := range keys {
+        if item == k.Name {
+            return false, errors.New(
+                fmt.Sprintf("%s Variable %s is self-referring while solving for %s.",
+                boldRed.Sprint("SolvingError:"),
+                boldBlack.Sprintf("'%s'", item),
+                boldBlack.Sprintf("'%s'", keys[0])))
+        }
+    }
+    if k.Child == nil {
+    	return false, e
+    }
+    mybool, e = k.Child.Eval(append(keys, k.Name))
+    if (mybool) {
+    	var op True
+    	k.Child = &op
+    }
+    return
 }
 
 func (key Key) String() string {
-	val, _ := key.Eval("") 
-	return fmt.Sprintf("{%s:%t}", key.Name, val)
+	return fmt.Sprintf("{%s:%T}", key.Name, key.Child)
 }
 

@@ -24,36 +24,48 @@ func getInput() (string, error) {
 	return s, nil
 }
 
-func print_result(b *solver.Builder) {
-	fmt.Println("Results: {")
-	defer fmt.Println("}")
+func print_result(b *solver.Builder) (e error) {
+	// fmt.Println("Results: {")
+	// defer fmt.Println("}")
 	for _, s := range b.Queries {
 		val, e := b.Eval_rules(s)
 		if e != nil {
-			fmt.Println(e)
+			return e
 		} else {
-			fmt.Printf("%s = %t\n", s, val)
+			fmt.Printf("\t%s = %t\n", s, val)
 		}
 	}
+	return e
 }
 
-func main() {
+func mainfunc() int {
 	content, e := getInput()
 	if e != nil {
 		fmt.Println(e)
-		return
+		return 1
 	}
-	l, e := lexer.New(content, os.Args[1])
-	if e != nil {
+	l := lexer.New(content, os.Args[1])
+	if l.Error != nil {
 		fmt.Println(e)
-		return
+		return 1
 	}
 	s, e := solver.New(l.Tokens)
+	if l.Error != nil {
+		e = l.Error
+	}
 	if e != nil {
 		fmt.Println(e)
-		return
+		return 1
 	}
-	fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
-	print_result(&s)
-	return
+	//fmt.Println("\nQueries:\t", s.Queries, "\nVariables:\t", s.Variables)
+	e = print_result(&s)
+	if e != nil {
+		fmt.Println(e)
+		return 1
+	}
+	return 0
+}
+
+func main() {
+	os.Exit(mainfunc())
 }
