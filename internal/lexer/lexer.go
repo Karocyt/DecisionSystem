@@ -39,7 +39,7 @@ func (this Lexer) String() string {
 }
 
 func (this LexingError) Error() string {
-	return fmt.Sprintf("%s %s Something when wrong while processing input data, got %s when expecting %s.\n",
+	return fmt.Sprintf("%s %s Something went wrong while processing input data, got %s when expecting %s.\n",
 		this.Lexer, boldRed.Sprint("LexingError:"), boldBlack.Sprint(this.Got), boldBlack.Sprint(this.Expected))
 }
 
