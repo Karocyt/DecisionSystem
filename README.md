@@ -3,6 +3,7 @@ Lexer and backward chaining inference engine written as two independant Go Modul
 
 ## Input format
 (see included valid and invalid examples for the full range of possibilities, as some operators are not accepted on the right side of the equation in my implementation)  
+Line breaks and spacing doesn't matter, and everything after a # is interpreted as commentary.  
 One instruction by line, using Capitalized keys, in 3 sections:
 ### Operations / Rules
 	Forty + Two  = Fortytwo
