@@ -1,31 +1,28 @@
 # Expert System
-Lexer and backward chaining inference engine
-Written as two independant Go Modules in Golang.
-
-It includes:
+Lexer and backward chaining inference engine written as two independant Go Modules in Golang.
 
 ## Input format
-(see included valid and invalid examples for the full range of what was implemented, as some operators are not accepted on the right side of the equation in my implementation)
+(see included valid and invalid examples for the full range of possibilities, as some operators are not accepted on the right side of the equation in my implementation)  
 One instruction by line, using Capitalized keys, in 3 sections:
 ### Operations / Rules
 	Forty + Two  = Fortytwo
-	Rain | Umbrela = !Sun
-The following symbols are defined, in order of decreasing priority:
-• ( and ) which are fairly obvious. Example : A + (B | C) => D
-• ! which means NOT. Example : !B
-• + which means AND. Example : A + B
-• | which means OR. Example : A | B
-• ˆ which means XOR. Example : A ˆ B
+	Rain | Umbrella = !Sun
+The following symbols are defined, in order of decreasing priority:  
+• ( and ) which are fairly obvious. Example : A + (B | C) => D  
+• ! which means NOT. Example : !B  
+• + which means AND. Example : A + B  
+• | which means OR. Example : A | B  
+• ˆ which means XOR. Example : A ˆ B  
 • => which means "implies". Example : A + B => C
 ### Facts / Statements
 	=AB CUmbrella
-A single line starting by an equal sign.
-State which keys/symbols are defined as True.
-As keys are Capitalized, spacing doesn't matter.
-The above example implies that both A, B, C and Umbrella are True
+A single line starting by an equal sign.  
+State which keys/symbols are defined as True.  
+As keys are Capitalized, spacing doesn't matter.  
+The above example implies that both A, B, C and Umbrella are True.  
 ### Queries
 	?SunA
-A single line starting by a question mark.
+A single line starting by a question mark.  
 The engine should be able to output the booleans corresponding to these Keys once rules have been applied.
 
 ## Lexer
