@@ -1,4 +1,4 @@
-# Expert System
+# Decision System
 Lexer and backward chaining inference engine written as two independant Go Modules in Golang.
 
 ## Input format
@@ -39,12 +39,12 @@ When "trickling down", a list of used nodes is built and an error is raised if w
 
 # Compilation
 
-	go build -o expert_system
-Compile expert_system app
+	go build
+Compile DecisionSystem command-line application
 
 # Usage
 
-./expert_system testdata/input1.txt
+./DecisionSystem{.exe} testdata/input1.txt
 
 ### First Golang project caveats
 As this was my first project ever using this wonderfull language, there might be a few non-idiomatic things.
