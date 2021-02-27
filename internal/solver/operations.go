@@ -44,8 +44,8 @@ type Or struct {
 
 func (op Or) Eval(keys []string) (bool, error) {
 	val1, e := op.Left.Eval(keys)
-	if !val1 || e != nil {
-		return op.Right.Eval(keys) ////////////// ignore errors in left operand, to comment if corrector close-minded
+	if !val1 && e == nil {
+		return op.Right.Eval(keys) ////////////// can ignore errors in left operand with a "|| e != nil" in condition
 	}
 	return val1, e
 }

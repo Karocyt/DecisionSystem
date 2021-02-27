@@ -38,4 +38,3 @@ func (k *Key) Eval(keys []string) (mybool bool, e error) {
 func (key Key) String() string {
 	return fmt.Sprintf("{%s:%T}", key.Name, key.Child)
 }
-

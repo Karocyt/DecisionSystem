@@ -25,14 +25,12 @@ func getInput() (string, error) {
 }
 
 func print_result(b *solver.Builder) (e error) {
-	// fmt.Println("Results: {")
-	// defer fmt.Println("}")
 	for _, s := range b.Queries {
 		val, e := b.Eval_rules(s)
 		if e != nil {
 			return e
 		} else {
-			fmt.Printf("\t%s = %t\n", s, val)
+			fmt.Printf("Query results:\n\t%s = %t\n", s, val)
 		}
 	}
 	return e
